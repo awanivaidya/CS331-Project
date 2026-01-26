@@ -6,8 +6,7 @@
 ## Overview  
 The **AI-Based Customer Communication Analysis and Risk Alert System** is a customer support automation platform designed to analyze customer communications such as emails and meeting transcripts in order to monitor customer sentiment, satisfaction trends, and potential SLA-related risks.
 
-The system applies Natural Language Processing (NLP) techniques to automatically classify sentiment, generate concise summaries of communications, and track sentiment changes over time. Based on predefined rules and thresholds, the system identifies high-risk customers and generates alerts to support proactive 
-
+The system applies Natural Language Processing (NLP) techniques to automatically classify sentiment, generate concise summaries of communications, and track sentiment changes over time. Based on predefined rules and thresholds, the system identifies high-risk customers and generates alerts to support proactive intervention.
 ---
 
 ## Objectives  
