@@ -1,0 +1,17 @@
+User - Manager
+
+User - Staff
+
+Registered User
+
+New User
+
+User
+
+Notification Service
+
+Database
+
+NLP Engine
+
+Identity Provider
