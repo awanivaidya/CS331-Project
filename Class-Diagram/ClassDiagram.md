@@ -119,3 +119,32 @@ Each class is documented along with its attributes and methods, including **visi
 - `- participants : List<String>` – List of meeting participants
 
 ---
+### NLPProcessor
+**Natural Language Processing engine for sentiment analysis and summarization.**
+
+**Methods:**
+- `+ analyzeSentiment() : String` – Analyzes text and returns sentiment classification
+- `+ generateSummary() : String` – Creates concise summary of communication content
+
+---
+
+### RiskAnalyzer
+**Evaluates customer risk based on sentiment trends and SLA compliance.**
+
+**Methods:**
+- `+ evaluateRisk() : String` – Calculates and returns current risk level
+
+---
+
+### Alert
+**System-generated notifications for risk events or SLA breaches.**
+
+**Attributes:**
+- `- alertId : String` – Unique alert identifier
+- `- severity : String` – Alert severity level (e.g., critical, warning, info)
+- `- message : String` – Alert description
+- `- timestamp : Date` – When the alert was generated
+- `- status : String` – Alert status (e.g., active, acknowledged, resolved)
+
+**Methods:**
+- `+ generateAlert() : void` – Creates and broadcasts a new alert
