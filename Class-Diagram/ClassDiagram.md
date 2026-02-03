@@ -40,3 +40,31 @@ Each class is documented along with its attributes and methods, including **visi
 - `+ viewProjects() : List<Project>` – Retrieves all projects in the system
 
 ---
+### Staff
+**Extends User. Assigned to specific projects with limited permissions.**
+
+**Attributes:**
+- `# assignedRole : String` – Role designation (e.g., finance, tech)
+- `# assignedProjects : List<Project>` – Projects assigned to this staff member
+
+**Methods:**
+- `+ viewProjects() : List<Project>` – Retrieves projects assigned to this staff member
+- `+ viewAlerts() : List<Alert>` – Retrieves alerts related to assigned projects
+
+---
+
+### Customer
+**Represents a client whose communications are monitored.**
+
+**Attributes:**
+- `- customerId : String` – Unique customer identifier
+- `- customerName : String` – Customer's organization or individual name
+- `- priority : String` – Customer priority level (e.g., high, medium, low)
+- `- sentimentScore : float` – Current sentiment score based on communication analysis
+- `- riskStatus : String` – Current risk level (e.g., critical, warning, stable)
+
+**Methods:**
+- `# updateSentiment() : void` – Updates sentiment score based on recent communications
+- `# updateRiskStatus() : void` – Updates risk status based on sentiment and SLA metrics
+
+---
