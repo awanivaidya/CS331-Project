@@ -102,3 +102,20 @@ Each class is documented along with its attributes and methods, including **visi
 - `- summary : String` – AI-generated summary of the communication
 
 ---
+### Email
+**Extends Communication. Represents email communications.**
+
+**Attributes:**
+- `- subject : String` – Email subject line
+- `- sender : String` – Email sender address
+
+---
+
+### Transcript
+**Extends Communication. Represents meeting or call transcripts.**
+
+**Attributes:**
+- `- meetingDate : Date` – Date and time of the meeting
+- `- participants : List<String>` – List of meeting participants
+
+---
