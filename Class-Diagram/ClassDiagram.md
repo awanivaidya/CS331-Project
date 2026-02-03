@@ -148,3 +148,4 @@ Each class is documented along with its attributes and methods, including **visi
 
 **Methods:**
 - `+ generateAlert() : void` – Creates and broadcasts a new alert
+---
