@@ -68,3 +68,37 @@ Each class is documented along with its attributes and methods, including **visi
 - `# updateRiskStatus() : void` – Updates risk status based on sentiment and SLA metrics
 
 ---
+
+### SLA
+**Service Level Agreement defining response expectations and risk thresholds.**
+
+**Attributes:**
+- `- slaId : String` – Unique SLA identifier
+- `- responseTime : int` – Maximum response time in hours
+- `- deadline : Date` – SLA expiration or review date
+- `- riskThreshold : float` – Sentiment threshold that triggers risk alerts
+
+---
+
+### Project
+**Represents a customer project.**
+
+**Attributes:**
+- `- projectId : String` – Unique project identifier
+- `- projectName : String` – Descriptive project name
+- `- projectCategory : String` – Business domain or category
+- `- status : String` – Current project status (e.g., active, completed, on-hold)
+
+---
+
+### Communication
+**Base class for all customer communications.**
+
+**Attributes:**
+- `- communicationId : String` – Unique communication identifier
+- `- content : String` – Raw communication content
+- `- timestamp : Date` – When the communication occurred
+- `- sentiment : String` – Analyzed sentiment (positive, neutral, negative)
+- `- summary : String` – AI-generated summary of the communication
+
+---
