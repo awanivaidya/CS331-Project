@@ -40,7 +40,7 @@ Each class is documented along with its attributes and methods, including **visi
 - `+ viewProjects() : List<Project>` – Retrieves all projects in the system
 
 ---
-### Staff
+### Staff/Viewer
 **Extends User. Assigned to specific projects with limited permissions.**
 
 **Attributes:**
@@ -119,7 +119,7 @@ Each class is documented along with its attributes and methods, including **visi
 - `- participants : List<String>` – List of meeting participants
 
 ---
-### NLPProcessor
+### NLP Processor
 **Natural Language Processing engine for sentiment analysis and summarization.**
 
 **Methods:**
@@ -128,11 +128,12 @@ Each class is documented along with its attributes and methods, including **visi
 
 ---
 
-### RiskAnalyzer
+### Risk Analyzer
 **Evaluates customer risk based on sentiment trends and SLA compliance.**
 
 **Methods:**
 - `+ evaluateRisk() : String` – Calculates and returns current risk level
+- `+ generateAlert() : void` – Creates and broadcasts a new alert
 
 ---
 
@@ -146,6 +147,4 @@ Each class is documented along with its attributes and methods, including **visi
 - `- timestamp : Date` – When the alert was generated
 - `- status : String` – Alert status (e.g., active, acknowledged, resolved)
 
-**Methods:**
-- `+ generateAlert() : void` – Creates and broadcasts a new alert
 ---
