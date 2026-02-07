@@ -58,23 +58,6 @@ Paste the email text (mixed feedback + requirements), then press `Ctrl+Z` (Windo
 
 Returns structured JSON with `sentiment_score`, `sentiment_category`, `staff_tasks`, and `high_priority_count`.
 
-## 4. Guaranteed offline usage
-
-1. Run the analyzer once while connected to the internet so Hugging Face can
-   download the weights into the local cache (typically `%USERPROFILE%/.cache`).
-2. Afterwards, run with `--offline` to force the script to use cached artifacts
-   only:
-
-```bash
-python analyzer.py --offline --text "Escalate P1 incidents within 2 hours."
-```
-
-3. If you prefer an environment-based switch, set `TRANSFORMERS_OFFLINE=1`
-   before execution and omit `--offline`.
-
-If the cache is missing, the script raises a helpful error instead of trying to
-reach the internet.
-
 ## 5. Backend Integration
 
 When the Node/Express backend is ready:
@@ -82,7 +65,7 @@ When the Node/Express backend is ready:
 ```python
 from nlpservice.analyzer import NLPService
 
-service = NLPService(offline=True)  # Use cached models
+service = NLPService(offline=True) 
 result = service.analyze(customer_email_text)
 
 # result.sentiment_score: float
@@ -91,4 +74,3 @@ result = service.analyze(customer_email_text)
 # result.high_priority_count: int
 ```
 
-Alternatively, wrap in a lightweight Flask/FastAPI endpoint that accepts email text and returns the `AnalysisResult` JSON.
