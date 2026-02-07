@@ -91,4 +91,4 @@ result = service.analyze(customer_email_text)
 # result.high_priority_count: int
 ```
 
-
+Alternatively, wrap in a lightweight Flask/FastAPI endpoint that accepts email text and returns the `AnalysisResult` JSON.
