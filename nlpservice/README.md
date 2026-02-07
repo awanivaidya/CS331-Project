@@ -58,7 +58,7 @@ Paste the email text (mixed feedback + requirements), then press `Ctrl+Z` (Windo
 
 Returns structured JSON with `sentiment_score`, `sentiment_category`, `staff_tasks`, and `high_priority_count`.
 
-## 5. Backend Integration
+## 4. Backend Integration
 
 When the Node/Express backend is ready:
 
