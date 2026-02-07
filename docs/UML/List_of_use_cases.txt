@@ -1,0 +1,25 @@
+Manage Customer Profiles
+
+Upload Communication Data
+
+Perform AI Analysis (Sentiment & Summary)
+
+View Tasks
+
+Generate Risk Alert
+
+View Active Alerts
+
+Registeration
+
+Register Clients
+
+Assign Roles to Users
+
+Define SLA
+
+Detect Risk
+
+
+Generate Summary
+
