@@ -1,317 +1,351 @@
-
 from __future__ import annotations
 
 import argparse
 import json
 import os
 import re
-from collections import Counter
 from dataclasses import dataclass, asdict
-from typing import List
+from typing import List, Set, Tuple
+from difflib import SequenceMatcher
 
-import torch
 from transformers import (
-    AutoModelForSequenceClassification,
-    AutoModelForSeq2SeqLM,
-    AutoTokenizer,
     pipeline,
+    AutoTokenizer,
+    AutoModelForSequenceClassification,
 )
 
-try:  # transformers 4.x
-    from transformers import SummarizationPipeline  # type: ignore
-except ImportError:
-    SummarizationPipeline = None
+# -------------------- CONFIG --------------------
 
-SENTIMENT_MODEL = os.environ.get(
-    "SENTIMENT_MODEL", "distilbert-base-uncased-finetuned-sst-2-english"
-)
-SUMMARY_MODEL = os.environ.get("SUMMARY_MODEL", "facebook/bart-large-cnn")
-STOPWORDS = {
-    "the",
-    "a",
-    "an",
-    "and",
-    "or",
-    "to",
-    "of",
-    "for",
-    "in",
-    "on",
-    "with",
-    "by",
-    "is",
-    "are",
-    "be",
-    "that",
-    "this",
-    "as",
-    "at",
-    "it",
-    "from",
-    "their",
-    "our",
-    "we",
-    "will",
-    "must",
+SENTIMENT_MODEL = "distilbert-base-uncased-finetuned-sst-2-english"
+MAX_SENTIMENT_TOKENS = 512 
+
+SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z])")
+
+ACTION_KEYWORDS = {
+    "must", "should", "shall", "need to", "have to", "needs to", "required to",
+    "required", "expected", "expect", "expecting", "anticipate",
+    "ensure", "provide", "deliver", "submit", "send", "share",
+    "respond", "reply", "resolve", "fix", "address", "handle",
+    "update", "inform", "notify", "communicate", "report",
+    "escalate", "prioritize", "complete", "finish", "implement",
+    "monitor", "track", "review", "check", "verify", "confirm",
+    "acknowledge", "maintain", "follow up", "followup",
+    "schedule", "plan", "prepare", "arrange", "coordinate",
+    "document", "record", "log", "note",
 }
-WORD_REGEX = re.compile(r"[A-Za-z']+")
 
+PRIORITY_KEYWORDS = {
+    "urgent", "asap", "immediately", "critical", "high priority",
+    "as soon as possible", "priority", "important", "essential",
+}
+
+FILLER_PREFIXES = (
+    "it is important that",
+    "it is essential that",
+    "it is critical that",
+    "we expect that",
+    "we expect",
+    "please ensure that",
+    "please make sure that",
+    "it would be beneficial to",
+    "it would be helpful to",
+    "we would like to",
+    "we would appreciate if",
+    "kindly",
+    "please",
+)
+
+SIMILARITY_THRESHOLD = 0.85  
+# -------------------- DATA MODEL --------------------
 
 @dataclass
 class AnalysisResult:
-    """Structured response returned to callers."""
-
-    sentiment_label: str
     sentiment_score: float
-    summary_bullets: List[str]
+    sentiment_category: str
+    staff_tasks: List[str]
+    high_priority_count: int = 0
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2)
 
 
-class ExtractiveSummarizer:
-    """Simple frequency-based summarizer used for demos/tests."""
+# -------------------- SENTIMENT --------------------
 
-    def __call__(self, text: str, **_) -> List[dict]:
-        selected = extractive_summary(text)
-        return [{"summary_text": " ".join(selected)}]
-
-
-class Seq2SeqGenerator:
-    """Minimal wrapper that calls model.generate directly (transformers>=5)."""
-
-    def __init__(self, model, tokenizer) -> None:
-        self._model = model
-        self._tokenizer = tokenizer
-
-    def __call__(self, text: str, min_length: int = 45, max_length: int = 160, **_) -> List[dict]:
-        inputs = self._tokenizer(
-            text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=1024,
-        )
-        with torch.no_grad():
-            generated = self._model.generate(
-                **inputs,
-                min_length=min_length,
-                max_length=max_length,
-                num_beams=4,
-                no_repeat_ngram_size=3,
-            )
-        decoded = self._tokenizer.batch_decode(generated, skip_special_tokens=True)
-        return [{"summary_text": decoded[0]}]
+def signed_sentiment(label: str, score: float) -> float:
+    """
+    Convert POSITIVE / NEGATIVE into signed numeric score.
+    """
+    return score if label == "POSITIVE" else -score
 
 
-class PipelineLoader:
-    """Lazily loads and caches huggingface pipelines."""
-
-    def __init__(self, offline: bool = False, force_extractive: bool = False) -> None:
-        self._sentiment = None
-        self._summarizer = None
-        self._offline = offline
-        self._force_extractive = force_extractive
-
-    def _load_with_cache(self, factory):
-        try:
-            return factory()
-        except OSError as err:
-            if self._offline:
-                raise RuntimeError(
-                    "Models not available offline. Run once while online to cache weights."
-                ) from err
-            raise
-
-    def sentiment(self):
-        if self._sentiment is None:
-            def factory():
-                tokenizer = AutoTokenizer.from_pretrained(
-                    SENTIMENT_MODEL, local_files_only=self._offline
-                )
-                model = AutoModelForSequenceClassification.from_pretrained(
-                    SENTIMENT_MODEL, local_files_only=self._offline
-                )
-                return pipeline(
-                    "sentiment-analysis",
-                    model=model,
-                    tokenizer=tokenizer,
-                )
-
-            self._sentiment = self._load_with_cache(factory)
-        return self._sentiment
-
-    def summarizer(self):
-        if self._summarizer is None:
-            if self._force_extractive:
-                self._summarizer = ExtractiveSummarizer()
-            else:
-                def factory():
-                    tokenizer = AutoTokenizer.from_pretrained(
-                        SUMMARY_MODEL, local_files_only=self._offline
-                    )
-                    model = AutoModelForSeq2SeqLM.from_pretrained(
-                        SUMMARY_MODEL, local_files_only=self._offline
-                    )
-                    if SummarizationPipeline is not None:
-                        return SummarizationPipeline(
-                            model=model,
-                            tokenizer=tokenizer,
-                            framework="pt",
-                            device=-1,
-                        )
-                    # transformers>=5 removed the registered task, so call generate directly.
-                    return Seq2SeqGenerator(model=model, tokenizer=tokenizer)
-
-                self._summarizer = self._load_with_cache(factory)
-        return self._summarizer
+def categorize_sentiment(score: float) -> str:
+    """
+    Map numeric score to 5 business categories.
+    """
+    if score >= 0.75:
+        return "VERY_POSITIVE"
+    if score >= 0.35:
+        return "POSITIVE"
+    if score > -0.35:
+        return "NEUTRAL"
+    if score > -0.75:
+        return "BAD"
+    return "VERY_BAD"
 
 
-def bulletize(text: str) -> List[str]:
-    """Split summary text into quick bullet points."""
+# -------------------- TASK EXTRACTION --------------------
 
-    cleaned = text.strip().replace("\n", " ")
-    if not cleaned:
+def text_similarity(a: str, b: str) -> float:
+    """Calculate similarity ratio between two strings."""
+    return SequenceMatcher(None, a.lower(), b.lower()).ratio()
+
+
+def normalize_sentence(sentence: str) -> str:
+    """
+    Light rephrasing: remove filler phrases, extra whitespace, and normalize punctuation.
+    """
+    # Remove filler prefixes
+    lowered = sentence.lower().strip()
+    for prefix in FILLER_PREFIXES:
+        if lowered.startswith(prefix):
+            sentence = sentence[len(prefix):].strip()
+            lowered = sentence.lower()
+    
+    # Capitalize first letter
+    if sentence:
+        sentence = sentence[0].upper() + sentence[1:]
+    
+    # Normalize whitespace
+    sentence = re.sub(r"\s+", " ", sentence)
+    
+    # Remove trailing period (we'll add it back consistently)
+    sentence = sentence.rstrip(".,;:")
+    
+    return sentence
+
+
+def is_action_sentence(sentence: str) -> bool:
+    """Check if sentence contains action keywords."""
+    lowered = sentence.lower()
+    return any(keyword in lowered for keyword in ACTION_KEYWORDS)
+
+
+def has_priority_marker(sentence: str) -> bool:
+    """Check if sentence contains urgency/priority indicators."""
+    lowered = sentence.lower()
+    return any(keyword in lowered for keyword in PRIORITY_KEYWORDS)
+
+
+def deduplicate_tasks(tasks: List[Tuple[str, bool]]) -> List[Tuple[str, bool]]:
+    """Remove near-duplicate tasks based on semantic similarity."""
+    if not tasks:
         return []
-    # Split on sentence boundaries to keep bullets readable.
-    sentences = re.split(r"(?<=[.!?])\s+", cleaned)
-    bullets = [f"- {segment.strip()}" for segment in sentences if segment.strip()]
-    return bullets
+    
+    unique_tasks = [tasks[0]]
+    
+    for task, priority in tasks[1:]:
+        is_duplicate = False
+        for existing_task, _ in unique_tasks:
+            if text_similarity(task, existing_task) > SIMILARITY_THRESHOLD:
+                is_duplicate = True
+                break
+        
+        if not is_duplicate:
+            unique_tasks.append((task, priority))
+    
+    return unique_tasks
 
 
-def extractive_summary(text: str, max_sentences: int = 3) -> List[str]:
-    """Frequency-based extractive summary for quick offline demos."""
-
-    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
-    if not sentences:
-        return []
-
-    tokens = [WORD_REGEX.findall(sentence.lower()) for sentence in sentences]
-    # Build word frequency table ignoring stopwords.
-    freq = Counter(
-        token
-        for token_list in tokens
-        for token in token_list
-        if token not in STOPWORDS
-    )
-    if not freq:
-        return sentences[: max_sentences or len(sentences)]
-
-    scores = []
-    for sentence, token_list in zip(sentences, tokens):
-        score = sum(freq[token] for token in token_list if token not in STOPWORDS)
-        scores.append((score, sentence))
-
-    top_sentences = [sentence for _, sentence in sorted(scores, key=lambda item: item[0], reverse=True)]
-    return top_sentences[: max_sentences]
-
-
-def analyze_text(
-    text: str,
-    loader: PipelineLoader,
-    min_summary_len: int = 45,
-    max_summary_len: int = 160,
-) -> AnalysisResult:
-    """Run sentiment analysis and summarization on the supplied text."""
-
+def extract_staff_tasks(text: str) -> Tuple[List[str], int]:
+    """
+    Extract ONLY staff-actionable tasks from mixed content.
+    Returns: (task_list, high_priority_count)
+    """
     if not text or not text.strip():
-        raise ValueError("Input text must be non-empty.")
+        return (["- Follow standard project responsibilities as defined.",
+                 "- Review any additional requirements or constraints if applicable."], 0)
+    
+    # Split into sentences more carefully
+    sentences = SENTENCE_SPLIT.split(text)
+    raw_tasks: List[Tuple[str, bool]] = []
 
-    sentiment_raw = loader.sentiment()(text)[0]
-    summary_raw = loader.summarizer()(text, min_length=min_summary_len, max_length=max_summary_len)[
-        0
-    ]["summary_text"]
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence or len(sentence) < 10:  # Skip very short fragments
+            continue
 
-    return AnalysisResult(
-        sentiment_label=sentiment_raw["label"],
-        sentiment_score=float(sentiment_raw["score"]),
-        summary_bullets=bulletize(summary_raw),
-    )
+        if is_action_sentence(sentence):
+            clean = normalize_sentence(sentence)
+            
+            # Skip if too short after normalization
+            if len(clean) < 5:
+                continue
+            
+            is_priority = has_priority_marker(sentence)
+            raw_tasks.append((clean, is_priority))
 
+    # Deduplicate similar tasks
+    unique_tasks = deduplicate_tasks(raw_tasks)
+    
+    # Sort: priority tasks first, then regular tasks
+    unique_tasks.sort(key=lambda x: (not x[1], x[0]))
+    
+    # Count high priority items
+    priority_count = sum(1 for _, is_priority in unique_tasks if is_priority)
+    
+    # Format output
+    formatted_tasks = []
+    for task, is_priority in unique_tasks:
+        prefix = "- [HIGH PRIORITY] " if is_priority else "- "
+        formatted_tasks.append(f"{prefix}{task}.")
+    
+    # Add default tasks if none found
+    if not formatted_tasks:
+        formatted_tasks.append("- Follow standard project responsibilities as defined.")
+    
+    formatted_tasks.append("- Review any additional requirements or constraints if applicable.")
+
+    return formatted_tasks, priority_count
+
+
+# -------------------- NLP SERVICE --------------------
+
+class NLPService:
+    def __init__(self, offline: bool = False):
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            SENTIMENT_MODEL,
+            local_files_only=offline,
+        )
+        self.sentiment_pipeline = pipeline(
+            "sentiment-analysis",
+            model=AutoModelForSequenceClassification.from_pretrained(
+                SENTIMENT_MODEL,
+                local_files_only=offline,
+            ),
+            tokenizer=self.tokenizer,
+        )
+
+    def _truncate_for_sentiment(self, text: str) -> str:
+        """Truncate text to fit model's token limit, preserving beginning and end."""
+        tokens = self.tokenizer.encode(text, add_special_tokens=False)
+        
+        if len(tokens) <= MAX_SENTIMENT_TOKENS - 2:  # Account for special tokens
+            return text
+        
+        # Keep first 60% and last 40% to capture both intro and conclusions
+        first_part_len = int((MAX_SENTIMENT_TOKENS - 2) * 0.6)
+        last_part_len = (MAX_SENTIMENT_TOKENS - 2) - first_part_len
+        
+        truncated_tokens = tokens[:first_part_len] + tokens[-last_part_len:]
+        return self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+
+    def analyze(self, text: str) -> AnalysisResult:
+        """
+        Analyze email text for sentiment and actionable tasks.
+        
+        Args:
+            text: Raw email content (mixed feedback + requirements)
+            
+        Returns:
+            AnalysisResult with sentiment score, category, tasks, and priority count
+            
+        Raises:
+            ValueError: If text is empty or invalid
+        """
+        if not text or not text.strip():
+            raise ValueError("Input text must not be empty.")
+
+        # Truncate for sentiment analysis if needed
+        truncated_text = self._truncate_for_sentiment(text)
+        
+        try:
+            raw = self.sentiment_pipeline(truncated_text)[0]
+        except Exception as e:
+            raise RuntimeError(f"Sentiment analysis failed: {e}") from e
+
+        numeric_score = signed_sentiment(
+            raw["label"],
+            float(raw["score"]),
+        )
+
+        category = categorize_sentiment(numeric_score)
+        
+        # Task extraction uses full text (no truncation)
+        tasks, priority_count = extract_staff_tasks(text)
+
+        return AnalysisResult(
+            sentiment_score=round(numeric_score, 4),
+            sentiment_category=category,
+            staff_tasks=tasks,
+            high_priority_count=priority_count,
+        )
+
+
+# -------------------- CLI --------------------
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description=(
-            "Analyze requirement/SLA text and print sentiment plus bullet summaries. "
-            "If --text is omitted the script reads from stdin until EOF."
-        )
+        description="Analyze long mixed emails to extract staff tasks and sentiment."
     )
     parser.add_argument(
         "--text",
         type=str,
-        help="Optional inline text. Use quotes. Overrides stdin input when provided.",
-    )
-    parser.add_argument(
-        "--min-summary-len",
-        type=int,
-        default=45,
-        help="Minimum tokens for summarization model (default 45).",
-    )
-    parser.add_argument(
-        "--max-summary-len",
-        type=int,
-        default=160,
-        help="Maximum tokens for summarization model (default 160).",
+        help="Inline email text. If omitted, input is read from stdin.",
     )
     parser.add_argument(
         "--json",
         action="store_true",
-        help="Return machine-readable JSON instead of human text output.",
+        help="Output JSON instead of formatted text.",
     )
     parser.add_argument(
         "--offline",
         action="store_true",
-        help=(
-            "Force transformers to run in offline mode. Requires the models to be "
-            "cached locally (run once online first)."
-        ),
-    )
-    parser.add_argument(
-        "--extractive",
-        action="store_true",
-        help=(
-            "Use a lightweight extractive summarizer instead of downloading a "
-            "transformer model (useful for quick demos)."
-        ),
+        help="Run offline (models must be cached locally).",
     )
     return parser.parse_args()
 
 
-def read_text_from_stdin() -> str:
-    print("Enter requirement/SLA text. Finish with Ctrl+Z (Windows) or Ctrl+D (Unix):")
-    collected = []
+def read_from_stdin() -> str:
+    print("Paste email text. End with Ctrl+D (Linux/macOS) or Ctrl+Z (Windows):")
+    lines = []
     try:
         while True:
-            line = input()
-            collected.append(line)
+            lines.append(input())
     except EOFError:
         pass
-    return "\n".join(collected)
+    return "\n".join(lines)
 
 
 def main() -> None:
     args = parse_args()
-    raw_text = args.text if args.text else read_text_from_stdin()
-    offline_env = os.environ.get("TRANSFORMERS_OFFLINE", "0") == "1"
-    loader = PipelineLoader(
-        offline=args.offline or offline_env,
-        force_extractive=args.extractive,
-    )
-    result = analyze_text(
-        raw_text,
-        loader,
-        min_summary_len=args.min_summary_len,
-        max_summary_len=args.max_summary_len,
-    )
+    text = args.text if args.text else read_from_stdin()
+
+    try:
+        service = NLPService(offline=args.offline)
+        result = service.analyze(text)
+    except ValueError as e:
+        print(f"Error: {e}", file=__import__('sys').stderr)
+        __import__('sys').exit(1)
+    except RuntimeError as e:
+        print(f"Runtime error: {e}", file=__import__('sys').stderr)
+        __import__('sys').exit(2)
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=__import__('sys').stderr)
+        __import__('sys').exit(3)
 
     if args.json:
         print(result.to_json())
         return
 
-    print("Sentiment label:", result.sentiment_label)
-    print("Confidence score:", f"{result.sentiment_score:.4f}")
-    print("Summary bullets:")
-    for bullet in result.summary_bullets:
-        print(" ", bullet)
+    print("Sentiment score:", result.sentiment_score)
+    print("Sentiment category:", result.sentiment_category)
+    if result.high_priority_count > 0:
+        print(f"High priority tasks: {result.high_priority_count}")
+    print("\nStaff tasks:")
+    for task in result.staff_tasks:
+        print(task)
+
 
 if __name__ == "__main__":
     main()
+
