@@ -90,6 +90,14 @@ Each class is documented along with its attributes and methods, including **visi
 - `- status : String` – Current project status (e.g., active, completed, on-hold)
 
 ---
+### Domain
+**Represents the domain of the project.**
+
+**Attributes:**
+- `- domainId : String` – Unique domain identifier
+- `- domainName : String` – Descriptive domain name
+
+---
 
 ### Communication
 **Base class for all customer communications.**
