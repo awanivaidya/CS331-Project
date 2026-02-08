@@ -30,10 +30,14 @@ SOFT_OBLIGATIONS = {
     "it is important that",
     "it is essential that",
     "it would be helpful to",
+    "it would be helpful if",
     "it would be beneficial to",
+    "it would be beneficial if",
     "we would like",
     "we ask that",
     "we recommend",
+    "we request",
+    "we formally request",
     "please ensure",
     "please make sure",
     "please confirm",
@@ -41,6 +45,9 @@ SOFT_OBLIGATIONS = {
     "please continue to",
     "please proceed to",
     "please coordinate",
+    "please review",
+    "please share",
+    "please provide",
     "kindly ensure",
     "kindly provide",
     "kindly confirm",
@@ -48,6 +55,8 @@ SOFT_OBLIGATIONS = {
     "it is expected that",
     "it would support",
     "this would allow us to",
+    "the system should",
+    "the platform should",
 }
 
 PROCESS_INDICATORS = {
@@ -167,6 +176,34 @@ ACTION_VERBS = {
     "investigate",
     "mitigate",
     "follow up",
+    "request",
+    "introduce",
+    "control",
+    "allow",
+    "associate",
+    "process",
+    "define",
+    "trigger",
+    "display",
+    "enable",
+    "configure",
+    "customize",
+    "integrate",
+    "ingest",
+    "assign",
+    "manage",
+    "create",
+    "set",
+    "establish",
+    "develop",
+    "design",
+    "build",
+    "approve",
+    "assess",
+    "evaluate",
+    "determine",
+    "plan",
+    "propose",
 }
 
 
@@ -207,16 +244,25 @@ REPHRASE_PATTERNS = [
     (r"it is important that (.*)", r"\1"),
     (r"it is essential that (.*)", r"\1"),
     (r"it would be helpful to (.*)", r"\1"),
+    (r"it would be helpful if (.*)", r"\1"),
     (r"it would be beneficial to (.*)", r"\1"),
+    (r"it would be beneficial if (.*)", r"\1"),
     (r"it would support (.*)", r"\1"),
     (r"this would allow us to (.*)", r"\1"),
     (r"we would like (.*)", r"\1"),
+    (r"we would like to formally request (.*)", r"\1"),
+    (r"we formally request (.*)", r"\1"),
+    (r"we request (.*)", r"\1"),
     (r"we ask that (.*)", r"\1"),
     (r"we expect (.*)", r"\1"),
     (r"we recommend (.*)", r"\1"),
     (r"please ensure (.*)", r"Ensure \1"),
     (r"please make sure (.*)", r"Make sure \1"),
+    (r"please review (.*)", r"Review \1"),
+    (r"please share (.*)", r"Share \1"),
+    (r"please provide (.*)", r"Provide \1"),
     (r"kindly ensure (.*)", r"Ensure \1"),
+    (r"kindly provide (.*)", r"Provide \1"),
 ]
 
 # ================= DATA MODEL =================
@@ -259,6 +305,26 @@ def categorize_sentiment(score: float) -> str:
     return "VERY_BAD"
 
 # ================= TASK EXTRACTION =================
+
+def split_into_sentences(text: str) -> List[str]:
+    """Split text into sentences, handling paragraphs, newlines, and headers."""
+    # Split on newlines first to separate paragraphs and headers
+    lines = re.split(r'\n+', text)
+
+    sentences: List[str] = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        # Skip header-only lines (e.g. "Role-Based Access Control (RBAC):")
+        if line.endswith(':') and not re.search(r'[.!?]', line):
+            continue
+        # Split each line/paragraph into sentences using the existing regex
+        parts = SENTENCE_SPLIT.split(line)
+        sentences.extend(parts)
+
+    return sentences
+
 
 def is_similar(a: str, b: str) -> float:
     """Calculate similarity ratio for deduplication."""
@@ -321,9 +387,10 @@ def is_valid_task_sentence(sentence: str) -> bool:
     has_soft = any(o in s for o in SOFT_OBLIGATIONS)
     has_process = any(p in s for p in PROCESS_INDICATORS)
     has_negative = any(n in s for n in NEGATIVE_ACTIONS)
+    has_please = s.strip().startswith("please") or " please " in s
 
     # Must have action verb and some obligation/process indicator
-    return (has_action or has_negative) and (has_hard or has_soft or has_process)
+    return (has_action or has_negative) and (has_hard or has_soft or has_process or has_please)
 
 
 def rephrase_task(sentence: str) -> str:
@@ -368,7 +435,7 @@ def extract_staff_tasks(text: str) -> Tuple[List[str], int]:
     Returns:
         (task_list, high_priority_count)
     """
-    sentences = SENTENCE_SPLIT.split(text)
+    sentences = split_into_sentences(text)
     raw_tasks: List[Tuple[str, bool]] = []
 
     for sentence in sentences:
