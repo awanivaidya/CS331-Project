@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "Customer Communication API (Module 1)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5001" },
+    { "key": "customerId", "value": "" },
+    { "key": "projectId", "value": "" },
+    { "key": "domainId", "value": "" },
+    { "key": "slaId", "value": "" },
+    { "key": "communicationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "description": "Expect: {\"status\":\"ok\",\"mongodb\":\"connected\"}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "List customers",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/customers" }
+        },
+        {
+          "name": "Create customer",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/customers",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corp\",\n  \"priority\": \"high\"\n}"
+            },
+            "description": "Copy _id from response into collection variable customerId"
+          }
+        },
+        {
+          "name": "Get customer",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/customers/{{customerId}}"
+          }
+        },
+        {
+          "name": "Update customer",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/customers/{{customerId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corporation\",\n  \"priority\": \"critical\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete customer",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/customers/{{customerId}}" }
+        }
+      ]
+    },
+    {
+      "name": "SLAs",
+      "item": [
+        {
+          "name": "List SLAs",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/slas" }
+        },
+        {
+          "name": "List SLAs by customer",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/slas?customerId={{customerId}}"
+          }
+        },
+        {
+          "name": "Create SLA",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/slas",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"responseTime\": 24,\n  \"deadline\": \"2025-03-01\",\n  \"riskThreshold\": 0.7,\n  \"customerId\": \"{{customerId}}\"\n}"
+            },
+            "description": "Set customerId in collection variables first. Copy _id to slaId if needed."
+          }
+        },
+        {
+          "name": "Get SLA",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/slas/{{slaId}}" }
+        },
+        {
+          "name": "Update SLA",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/slas/{{slaId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"responseTime\": 48\n}" }
+          }
+        },
+        {
+          "name": "Delete SLA",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/slas/{{slaId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "List projects",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/projects" }
+        },
+        {
+          "name": "Create project",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/projects",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Q1 Integration\",\n  \"status\": \"active\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            },
+            "description": "Copy _id from response into collection variable projectId"
+          }
+        },
+        {
+          "name": "Get project",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/projects/{{projectId}}" }
+        },
+        {
+          "name": "Update project",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/projects/{{projectId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"completed\"\n}" }
+          }
+        },
+        {
+          "name": "Delete project",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/projects/{{projectId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Domains",
+      "item": [
+        {
+          "name": "List domains",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/domains" }
+        },
+        {
+          "name": "Create domain",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/domains",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Billing\"\n}" },
+            "description": "Copy _id from response into collection variable domainId"
+          }
+        },
+        {
+          "name": "Get domain",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/domains/{{domainId}}" }
+        },
+        {
+          "name": "Update domain",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/domains/{{domainId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Billing & Support\"\n}" }
+          }
+        },
+        {
+          "name": "Delete domain",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/domains/{{domainId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Communications",
+      "item": [
+        {
+          "name": "List communications",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/communications" }
+        },
+        {
+          "name": "List by project",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/communications?projectId={{projectId}}"
+          }
+        },
+        {
+          "name": "List by type (email)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/communications?type=email"
+          }
+        },
+        {
+          "name": "Upload email",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/communications/email",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"We are facing delays. Please confirm the new timeline.\",\n  \"subject\": \"Delivery delay inquiry\",\n  \"sender\": \"client@acme.com\",\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            },
+            "description": "Set customerId, projectId, domainId in collection variables first."
+          }
+        },
+        {
+          "name": "Upload transcript",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/communications/transcript",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Meeting notes: Client expressed concern about support response times.\",\n  \"meetingDate\": \"2025-02-06\",\n  \"participants\": [\"john@company.com\", \"jane@acme.com\"],\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get communication",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/communications/{{communicationId}}" }
+        },
+        {
+          "name": "Update communication",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/communications/{{communicationId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sentiment\": -0.3,\n  \"summary\": \"Customer reported delivery delay.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete communication",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/communications/{{communicationId}}" }
+        }
+      ]
+    }
+  ]
+}
