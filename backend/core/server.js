@@ -4,7 +4,7 @@
  * Run: node server.js (ensure MongoDB is running or .env has Atlas URI)
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const connectDB = require('./config/db');
 
@@ -13,14 +13,18 @@ const slaRoutes = require('./routes/slaRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const domainRoutes = require('./routes/domainRoutes');
 const communicationRoutes = require('./routes/communicationRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+const cookieParser = require('cookie-parser');
 app.use(express.json());
+app.use(cookieParser());
 
 connectDB();
 
+app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/slas', slaRoutes);
 app.use('/api/projects', projectRoutes);
