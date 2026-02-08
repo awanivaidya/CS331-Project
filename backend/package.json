@@ -1,18 +1,23 @@
 {
-  "name": "customer-communication-backend",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "AI-Based Customer Communication Analysis and Risk Alert System - Backend (Module 1)",
-  "main": "server.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^8.0.0",
-    "dotenv": "^16.3.1"
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemon": "^3.1.11",
+    "pg": "^8.18.0"
   }
 }
