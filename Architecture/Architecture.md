@@ -51,11 +51,12 @@
 - Faster than microservices for this project scale.
 - NLP processing is isolated, preventing performance bottlenecks in core services.
 
-### 4. Simplicity and Academic Suitability
+### 4. Modularity and Clear Responsibility Separation
 
-- Easier to design, implement, and document.
-- Clear mapping to UML, DFDs, and use-case diagrams.
-- Well-suited for a university software engineering project.
+- Each layer encapsulates a distinct concern (UI, business logic, AI processing, data management).
+- Enhances system modularity and reduces coupling between components.
+- Supports independent evolution of AI models without restructuring the entire system.
+- Simplifies integration testing and validation of individual layers.
 
 ### 5. Future Extensibility
 
