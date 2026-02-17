@@ -47,12 +47,12 @@ The system follows a modular architecture consisting of:
 ---
 
 ## Technology Stack  
-- Backend: Python, Flask  
+- Backend: Node.js  
 - NLP: Pre-trained or fine-tuned BERT model  
 - Summarization: Extractive NLP techniques  
-- Database: SQLite  
-- Frontend: HTML, CSS, JavaScript
-- Authentication: Microsoft Azure
+- Database: MongoDB  
+- Frontend: React, TailwindCSS
+- Authentication: JWT Authentication
 
 ---
 
