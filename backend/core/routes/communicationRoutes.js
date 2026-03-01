@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const {
   listCommunications,
   getCommunication,
@@ -6,15 +6,17 @@ const {
   uploadTranscript,
   updateCommunication,
   deleteCommunication,
-} = require('../controllers/communicationController');
+  analyzeExistingCommunication,
+} = require("../controllers/communicationController");
 
 const router = express.Router();
 
-router.get('/', listCommunications);
-router.get('/:id', getCommunication);
-router.post('/email', uploadEmail);
-router.post('/transcript', uploadTranscript);
-router.put('/:id', updateCommunication);
-router.delete('/:id', deleteCommunication);
+router.get("/", listCommunications);
+router.get("/:id", getCommunication);
+router.post("/email", uploadEmail);
+router.post("/transcript", uploadTranscript);
+router.post("/:id/analyze", analyzeExistingCommunication);
+router.put("/:id", updateCommunication);
+router.delete("/:id", deleteCommunication);
 
 module.exports = router;

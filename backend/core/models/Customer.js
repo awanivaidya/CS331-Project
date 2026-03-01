@@ -2,16 +2,26 @@
  * Customer model - created and managed by Manager.
  */
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    priority: { type: String, default: 'normal' },
-    sentimentScore: { type: Number, default: null },
-    riskStatus: { type: String, default: null },
+    priority: { type: String, default: "normal" },
+    sentimentScore: { type: Number, default: 0 },
+    riskStatus: {
+      type: String,
+      enum: ["stable", "warning", "critical", null],
+      default: null,
+    },
+    sentimentHistory: [
+      {
+        score: { type: Number },
+        timestamp: { type: Date, default: Date.now },
+      },
+    ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('Customer', customerSchema);
+module.exports = mongoose.model("Customer", customerSchema);

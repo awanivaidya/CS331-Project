@@ -1,6 +1,7 @@
 {
   "info": {
-    "name": "Customer Communication API (Module 1)",
+    "name": "Customer Communication API with NLP & Risk Analysis",
+    "description": "AI-Based Customer Communication Analysis and Risk Alert System - Complete API Collection with NLP Processing and Risk Alerts",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -20,7 +21,15 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/health",
-            "description": "Expect: {\"status\":\"ok\",\"mongodb\":\"connected\"}"
+            "description": "Check server and MongoDB connection status. Expect: {\"status\":\"ok\",\"mongodb\":\"connected\"}"
+          }
+        },
+        {
+          "name": "Root endpoint (API list)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/",
+            "description": "List all available API endpoints"
           }
         }
       ]
@@ -30,7 +39,11 @@
       "item": [
         {
           "name": "List customers",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/customers" }
+          "request": { 
+            "method": "GET", 
+            "url": "{{baseUrl}}/api/customers",
+            "description": "Get all customers with their sentiment scores and risk status"
+          }
         },
         {
           "name": "Create customer",
@@ -40,16 +53,17 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Acme Corp\",\n  \"priority\": \"high\"\n}"
+              "raw": "{\n  \"name\": \"Acme Corporation\",\n  \"priority\": \"high\"\n}"
             },
-            "description": "Copy _id from response into collection variable customerId"
+            "description": "Create a new customer. Copy _id from response into collection variable 'customerId'. Customer starts with sentimentScore: 0, riskStatus: null"
           }
         },
         {
           "name": "Get customer",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/customers/{{customerId}}"
+            "url": "{{baseUrl}}/api/customers/{{customerId}}",
+            "description": "Get customer details including sentimentScore, riskStatus, and sentimentHistory"
           }
         },
         {
@@ -60,13 +74,18 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Acme Corporation\",\n  \"priority\": \"critical\"\n}"
-            }
+              "raw": "{\n  \"name\": \"Acme Corporation Updated\",\n  \"priority\": \"critical\"\n}"
+            },
+            "description": "Update customer details. Note: sentimentScore and riskStatus are auto-calculated from communications"
           }
         },
         {
           "name": "Delete customer",
-          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/customers/{{customerId}}" }
+          "request": { 
+            "method": "DELETE", 
+            "url": "{{baseUrl}}/api/customers/{{customerId}}",
+            "description": "Delete a customer"
+          }
         }
       ]
     },
@@ -92,7 +111,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"responseTime\": 24,\n  \"deadline\": \"2025-03-01\",\n  \"riskThreshold\": 0.7,\n  \"customerId\": \"{{customerId}}\"\n}"
+              "raw": "{\n  \"responseTime\": 24,\n  \"deadline\": \"2026-03-01\",\n  \"riskThreshold\": 0.7,\n  \"customerId\": \"{{customerId}}\"\n}"
             },
             "description": "Set customerId in collection variables first."
           }
@@ -121,7 +140,11 @@
       "item": [
         {
           "name": "List projects",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/projects" }
+          "request": { 
+            "method": "GET", 
+            "url": "{{baseUrl}}/api/projects",
+            "description": "Get all projects. Projects now include 'tasks' array with actionable items from NLP"
+          }
         },
         {
           "name": "Create project",
@@ -131,14 +154,18 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Q1 Integration\",\n  \"status\": \"active\",\n  \"customerId\": \"{{customerId}}\"\n}"
+              "raw": "{\n  \"name\": \"E-commerce Platform Migration\",\n  \"status\": \"active\",\n  \"customerId\": \"{{customerId}}\"\n}"
             },
-            "description": "Copy _id from response into collection variable projectId"
+            "description": "Create a new project. Copy _id from response into collection variable 'projectId'. Tasks array starts empty, gets populated when communications are analyzed."
           }
         },
         {
           "name": "Get project",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/projects/{{projectId}}" }
+          "request": { 
+            "method": "GET", 
+            "url": "{{baseUrl}}/api/projects/{{projectId}}",
+            "description": "Get project details including tasks array with actionable items extracted from latest communication"
+          }
         },
         {
           "name": "Update project",
@@ -168,7 +195,7 @@
             "method": "POST",
             "url": "{{baseUrl}}/api/domains",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Billing\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Technical Support\"\n}" },
             "description": "Copy _id from response into collection variable domainId"
           }
         },
@@ -182,7 +209,7 @@
             "method": "PUT",
             "url": "{{baseUrl}}/api/domains/{{domainId}}",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Billing & Support\"\n}" }
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Technical Support & Billing\"\n}" }
           }
         },
         {
@@ -192,11 +219,15 @@
       ]
     },
     {
-      "name": "Communications",
+      "name": "Communications (with NLP)",
       "item": [
         {
           "name": "List communications",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/communications" }
+          "request": { 
+            "method": "GET", 
+            "url": "{{baseUrl}}/api/communications",
+            "description": "Get all communications. Each has sentiment score and summary from NLP analysis"
+          }
         },
         {
           "name": "List by project",
@@ -213,33 +244,73 @@
           }
         },
         {
-          "name": "Upload email",
+          "name": "Upload email (NEGATIVE - triggers alert)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/communications/email",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"We are facing delays. Please confirm the new timeline.\",\n  \"subject\": \"Delivery delay inquiry\",\n  \"sender\": \"client@acme.com\",\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+              "raw": "{\n  \"content\": \"We are extremely disappointed with the recent delays in the project. The system must provide daily status updates and all critical bugs should be resolved within 4 hours. This is urgent and requires immediate attention. Please escalate any blockers to management immediately.\",\n  \"subject\": \"URGENT: Project Delays and Critical Issues\",\n  \"sender\": \"john.doe@acme.com\",\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
             },
-            "description": "Set customerId, projectId, domainId in collection variables first."
+            "description": "⚠️ NLP INTEGRATION: Analyzes email content, extracts tasks, calculates sentiment, updates customer risk. Response includes: communication, nlpAnalysis (sentimentScore, staffTasks), and alert (if critical). Project tasks are auto-updated. Customer sentiment is tracked and risk status calculated."
           }
         },
         {
-          "name": "Upload transcript",
+          "name": "Upload email (POSITIVE - improves sentiment)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/communications/email",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Thank you for the excellent work on the recent sprint. We are very pleased with the progress and the team's responsiveness. The deliverables exceeded our expectations. Please continue with the current approach and maintain the quality of work.\",\n  \"subject\": \"Great Progress - Thank You!\",\n  \"sender\": \"john.doe@acme.com\",\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            },
+            "description": "Positive sentiment email. Shows how customer sentiment score improves (weighted average) and risk status may change from critical → warning → stable"
+          }
+        },
+        {
+          "name": "Upload email (NEUTRAL)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/communications/email",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"We are facing some delays with the deployment. Please confirm the new timeline and provide a status update by end of week.\",\n  \"subject\": \"Timeline confirmation needed\",\n  \"sender\": \"client@acme.com\",\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            },
+            "description": "Neutral sentiment example"
+          }
+        },
+        {
+          "name": "Upload transcript (with NLP)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/communications/transcript",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"Meeting notes: Client expressed concern about support response times.\",\n  \"meetingDate\": \"2025-02-06\",\n  \"participants\": [\"john@company.com\", \"jane@acme.com\"],\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
-            }
+              "raw": "{\n  \"content\": \"Meeting discussion about project timeline. Customer expressed concerns about deployment schedule. They need weekly status reports and expect 24-hour response time for priority 1 issues. Action items: implement automated testing and improve documentation.\",\n  \"meetingDate\": \"2026-02-17\",\n  \"participants\": [\"john.doe@acme.com\", \"manager@company.com\", \"tech.lead@company.com\"],\n  \"projectId\": \"{{projectId}}\",\n  \"domainId\": \"{{domainId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            },
+            "description": "Same NLP processing as emails. Analyzes meeting transcript, extracts action items, updates project tasks, calculates sentiment and risk."
           }
         },
         {
           "name": "Get communication",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/communications/{{communicationId}}" }
+          "request": { 
+            "method": "GET", 
+            "url": "{{baseUrl}}/api/communications/{{communicationId}}",
+            "description": "View communication with sentiment score and summary"
+          }
+        },
+        {
+          "name": "Re-analyze existing communication",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/communications/{{communicationId}}/analyze",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "🆕 NEW ENDPOINT: Re-run NLP analysis on an existing communication. Useful for testing or if NLP failed initially. Updates sentiment, tasks, and customer risk."
+          }
         },
         {
           "name": "Update communication",
@@ -249,13 +320,35 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"sentiment\": -0.3,\n  \"summary\": \"Customer reported delivery delay.\"\n}"
-            }
+              "raw": "{\n  \"subject\": \"Updated subject line\"\n}"
+            },
+            "description": "Manually update communication fields (not recommended - NLP auto-populates sentiment/summary)"
           }
         },
         {
           "name": "Delete communication",
           "request": { "method": "DELETE", "url": "{{baseUrl}}/api/communications/{{communicationId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Alerts & Risk Dashboard",
+      "item": [
+        {
+          "name": "Risk Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/alerts/dashboard",
+            "description": "🆕 NEW ENDPOINT: Get complete risk overview. Shows: totalCustomers, criticalCount, warningCount, stableCount, active alerts, and all customers with their risk status. Risk Thresholds: stable (>-0.30), warning (-0.60 to -0.30), critical (≤-0.60)"
+          }
+        },
+        {
+          "name": "Critical Alerts Only",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/alerts/critical",
+            "description": "🆕 NEW ENDPOINT: Get only customers with CRITICAL risk status (sentiment ≤ -0.60). Shows all projects for critical customers with detailed alert messages."
+          }
         }
       ]
     }
