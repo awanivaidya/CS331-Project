@@ -1,23 +1,51 @@
-// Importing the necessary functions to handle API calls
+// Example of how to replace console.log statements with API calls
 
-async function authenticateUser(credentials) {
-    try {
-        const response = await fetch('http://localhost:5001/api/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(credentials)
-        });
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error authenticating user:', error);
-    }
+function login(username, password) {
+    fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Save the token to localStorage
+        localStorage.setItem('authToken', data.token);
+        console.log('Login successful! Token stored.');
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
 }
 
-// Usage example
-const credentials = { username: 'user', password: 'pass' }; // Replace with actual user input
+function register(username, password) {
+    fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Save the token to localStorage
+        localStorage.setItem('authToken', data.token);
+        console.log('Registration successful! Token stored.');
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
 
-// Instead of console.log, call the authenticateUser function
-authenticateUser(credentials).then((data) => {
-    console.log('Authentication response:', data);
-});
+// Replace any occurrence of console.log statements as needed
