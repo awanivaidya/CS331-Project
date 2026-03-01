@@ -47,7 +47,7 @@ The system follows a modular architecture consisting of:
 ---
 
 ## Technology Stack  
-- Backend: Node.js  
+- Backend: Node.js / Express
 - NLP: Pre-trained or fine-tuned BERT model  
 - Summarization: Extractive NLP techniques  
 - Database: MongoDB  
