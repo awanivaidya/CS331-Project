@@ -1,51 +1,69 @@
-// Example of how to replace console.log statements with API calls
+// JavaScript code for login/registration form handling with API integration
 
-function login(username, password) {
-    fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Save the token to localStorage
-        localStorage.setItem('authToken', data.token);
-        console.log('Login successful! Token stored.');
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
+// Event listener for form submission
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+
+if (loginForm) {
+    loginForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        // API call for login
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to dashboard or show success message
+                window.location.href = '/dashboard';
+            } else {
+                // Show error message
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
 }
 
-function register(username, password) {
-    fetch('http://localhost:5001/api/auth/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
+if (registerForm) {
+    registerForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Simple client-side validation
+        if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
         }
-        return response.json();
-    })
-    .then(data => {
-        // Save the token to localStorage
-        localStorage.setItem('authToken', data.token);
-        console.log('Registration successful! Token stored.');
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
+
+        // API call for registration
+        fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to login or show success message
+                alert('Registration successful! You can now log in.');
+                window.location.href = '/login';
+            } else {
+                // Show error message
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
 }
-
-// Replace any occurrence of console.log statements as needed
