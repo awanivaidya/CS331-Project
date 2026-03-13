@@ -6,13 +6,16 @@ const {
   updateSla,
   deleteSla,
 } = require('../controllers/slaController');
+const { authenticateToken } = require('../middlewares/authenticate');
+const { managerOnly } = require('../middlewares/authorization');
 
 const router = express.Router();
 
+router.use(authenticateToken);
 router.get('/', listSlas);
 router.get('/:id', getSla);
-router.post('/', createSla);
-router.put('/:id', updateSla);
-router.delete('/:id', deleteSla);
+router.post('/', managerOnly, createSla);
+router.put('/:id', managerOnly, updateSla);
+router.delete('/:id', managerOnly, deleteSla);
 
 module.exports = router;

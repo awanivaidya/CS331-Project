@@ -12,10 +12,11 @@ const userSchema = new mongoose.Schema(
     email: { type: String, unique: true },
     fullname: { type: String },
     password: { type: String },
-    role: { type: String },
+    role: { type: String, enum: ['Manager', 'Staff'], default: 'Staff' },
     type: {
       type: String,
       enum: ['User', 'Manager', 'Staff'],
+      default: 'Staff',
     },
     assignedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
     assignedDomains: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Domain' }],

@@ -1,0 +1,314 @@
+:root {
+  --font-sans: "Manrope", "Segoe UI", sans-serif;
+  --ink-900: #102027;
+  --ink-700: #34444d;
+  --ink-500: #5b6c76;
+  --paper: #f2f5f3;
+  --card: #ffffff;
+  --teal-700: #0f766e;
+  --teal-500: #14b8a6;
+  --amber-500: #f59e0b;
+  --red-500: #ef4444;
+  --line: #d8e2e0;
+  --shadow: 0 12px 34px rgba(16, 32, 39, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink-900);
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at 10% 10%, #c8ece4 0%, transparent 30%),
+    radial-gradient(circle at 90% 90%, #dce8ff 0%, transparent 35%),
+    var(--paper);
+}
+
+a {
+  color: var(--teal-700);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  background: var(--teal-700);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+input,
+textarea,
+select {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.58rem 0.7rem;
+  background: #fff;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--ink-700);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+}
+
+.sidebar {
+  padding: 1.35rem;
+  background: #0f172a;
+  color: #f3f4f6;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.sidebar nav a {
+  text-decoration: none;
+  color: #dbeafe;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+}
+
+.sidebar nav a.active {
+  border-color: #22d3ee;
+  background: rgba(34, 211, 238, 0.1);
+}
+
+.profile-box {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.8rem;
+  border-radius: 12px;
+}
+
+.content {
+  padding: 1.2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.page-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.card-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.stat-card h3 {
+  color: var(--ink-500);
+  margin-bottom: 0.5rem;
+}
+
+.stat-card strong {
+  font-size: 1.8rem;
+  color: var(--teal-700);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  padding: 0.58rem;
+  vertical-align: top;
+}
+
+.task-list,
+.alert-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.auth-card {
+  width: min(100%, 500px);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.grid-form {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.inline-form {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.badge.critical {
+  color: #fff;
+  background: var(--red-500);
+}
+
+.badge.warning {
+  color: #111827;
+  background: var(--amber-500);
+}
+
+.badge.positive {
+  color: #fff;
+  background: var(--teal-700);
+}
+
+.badge.neutral {
+  color: #fff;
+  background: #64748b;
+}
+
+.risk-banner {
+  border: 1px solid #fecaca;
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-radius: 12px;
+  padding: 0.7rem;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.risk-banner-actions {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.risk-banner-actions button {
+  background: #b91c1c;
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.warn {
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.muted {
+  color: var(--ink-500);
+}
+
+.critical-line {
+  color: #7f1d1d;
+}
+
+.warning-line {
+  color: #92400e;
+}
+
+.chart-wrap {
+  width: 100%;
+  height: 260px;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .risk-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

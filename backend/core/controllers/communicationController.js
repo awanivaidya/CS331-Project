@@ -12,6 +12,14 @@ const {
   generateAlertIfNeeded,
 } = require("../services/riskService");
 
+const isStaff = (req) => (req.user?.type || req.user?.role) === "Staff";
+
+const staffDomainFilter = (req) => {
+  if (!isStaff(req)) return null;
+  const domains = req.user?.assignedDomains || [];
+  return domains.map((id) => id.toString());
+};
+
 const listCommunications = async (req, res) => {
   try {
     const filter = {};
@@ -19,6 +27,12 @@ const listCommunications = async (req, res) => {
     if (req.query.projectId) filter.projectId = req.query.projectId;
     if (req.query.domainId) filter.domainId = req.query.domainId;
     if (req.query.customerId) filter.customerId = req.query.customerId;
+
+    const allowedDomains = staffDomainFilter(req);
+    if (allowedDomains) {
+      filter.domainId = { $in: allowedDomains };
+    }
+
     const communications = await Communication.find(filter)
       .populate("projectId", "name")
       .populate("domainId", "name")
@@ -39,6 +53,13 @@ const getCommunication = async (req, res) => {
       .lean();
     if (!comm)
       return res.status(404).json({ error: "Communication not found" });
+
+    const allowedDomains = staffDomainFilter(req);
+    const communicationDomainId = comm.domainId?._id?.toString?.() || comm.domainId?.toString();
+    if (allowedDomains && !allowedDomains.includes(communicationDomainId)) {
+      return res.status(403).json({ error: "Access denied for this domain" });
+    }
+
     res.json(comm);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -67,6 +88,21 @@ const uploadEmail = async (req, res) => {
     for (const field of required) {
       if (req.body[field] == null || req.body[field] === "")
         return res.status(400).json({ error: `${field} is required` });
+    }
+
+    const project = await Project.findById(projectId).lean();
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    if (project.customerId.toString() !== customerId) {
+      return res.status(400).json({ error: "customerId does not match project" });
+    }
+    if (project.domainId.toString() !== domainId) {
+      return res.status(400).json({ error: "domainId does not match project" });
+    }
+
+    const customer = await Customer.findById(customerId).lean();
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+    if (customer.domainId.toString() !== domainId) {
+      return res.status(400).json({ error: "domainId does not match customer" });
     }
 
     // Step 1: Create communication entry
@@ -168,6 +204,21 @@ const uploadTranscript = async (req, res) => {
     const participantsArr = Array.isArray(participants)
       ? participants
       : [participants];
+
+    const project = await Project.findById(projectId).lean();
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    if (project.customerId.toString() !== customerId) {
+      return res.status(400).json({ error: "customerId does not match project" });
+    }
+    if (project.domainId.toString() !== domainId) {
+      return res.status(400).json({ error: "domainId does not match project" });
+    }
+
+    const customer = await Customer.findById(customerId).lean();
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+    if (customer.domainId.toString() !== domainId) {
+      return res.status(400).json({ error: "domainId does not match customer" });
+    }
 
     // Step 1: Create communication entry
     const doc = await Communication.create({
@@ -277,6 +328,11 @@ const analyzeExistingCommunication = async (req, res) => {
     const comm = await Communication.findById(req.params.id);
     if (!comm)
       return res.status(404).json({ error: "Communication not found" });
+
+    const allowedDomains = staffDomainFilter(req);
+    if (allowedDomains && !allowedDomains.includes(comm.domainId.toString())) {
+      return res.status(403).json({ error: "Access denied for this domain" });
+    }
 
     // Run NLP analysis
     const nlpResult = await nlpService.analyze(comm.content);

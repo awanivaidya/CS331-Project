@@ -6,12 +6,26 @@
 const Customer = require("../models/Customer");
 const Project = require("../models/Project");
 
+const isStaff = (req) => (req.user?.type || req.user?.role) === "Staff";
+
+const staffDomainFilter = (req) => {
+  if (!isStaff(req)) return null;
+  const domains = req.user?.assignedDomains || [];
+  return domains.map((id) => id.toString());
+};
+
 /**
  * Get all customers with their current risk status
  */
 const getRiskDashboard = async (req, res) => {
   try {
-    const customers = await Customer.find({})
+    const filter = {};
+    const allowedDomains = staffDomainFilter(req);
+    if (allowedDomains) {
+      filter.domainId = { $in: allowedDomains };
+    }
+
+    const customers = await Customer.find(filter)
       .select("name priority sentimentScore riskStatus sentimentHistory")
       .lean();
 
@@ -53,14 +67,19 @@ const getRiskDashboard = async (req, res) => {
  */
 const getCriticalAlerts = async (req, res) => {
   try {
-    const criticalCustomers = await Customer.find({ riskStatus: "critical" })
+    const filter = { riskStatus: "critical" };
+    const allowedDomains = staffDomainFilter(req);
+    if (allowedDomains) {
+      filter.domainId = { $in: allowedDomains };
+    }
+
+    const criticalCustomers = await Customer.find(filter)
       .select("name priority sentimentScore riskStatus sentimentHistory")
       .lean();
 
     const alerts = [];
 
     for (const customer of criticalCustomers) {
-      // Find projects for this customer
       const projects = await Project.find({ customerId: customer._id })
         .select("name status")
         .lean();

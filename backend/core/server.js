@@ -7,6 +7,7 @@
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const express = require("express");
+const cors = require("cors");
 const connectDB = require("./config/db");
 
 const customerRoutes = require("./routes/customerRoutes");
@@ -21,6 +22,12 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 const cookieParser = require("cookie-parser");
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 

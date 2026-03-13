@@ -8,11 +8,16 @@ const customerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     priority: { type: String, default: "normal" },
+    domainId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Domain",
+      required: true,
+    },
     sentimentScore: { type: Number, default: 0 },
     riskStatus: {
       type: String,
       enum: ["stable", "warning", "critical", null],
-      default: null,
+      default: "stable",
     },
     sentimentHistory: [
       {

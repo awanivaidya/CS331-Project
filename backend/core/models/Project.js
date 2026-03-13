@@ -8,6 +8,11 @@ const projectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     status: { type: String, default: "active" },
+    domainId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Domain",
+      required: true,
+    },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
