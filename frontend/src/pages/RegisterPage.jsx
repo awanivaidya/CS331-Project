@@ -52,9 +52,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-page">
-      <form className="card auth-card" onSubmit={onSubmit}>
-        <h2>Create Account</h2>
+    <div className="auth-page bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <form
+        className="card auth-card border-slate-700/60 bg-slate-800/80 text-slate-100"
+        onSubmit={onSubmit}
+      >
+        <h2 className="text-3xl font-semibold">Create Account</h2>
         <label>
           Username
           <input
@@ -100,7 +103,11 @@ export default function RegisterPage() {
           <select
             value={form.type}
             onChange={(e) =>
-              setForm((s) => ({ ...s, type: e.target.value, assignedDomains: [] }))
+              setForm((s) => ({
+                ...s,
+                type: e.target.value,
+                assignedDomains: [],
+              }))
             }
           >
             <option value="Staff">Staff</option>
@@ -127,7 +134,11 @@ export default function RegisterPage() {
         ) : null}
 
         {error ? <div className="error">{error}</div> : null}
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-violet-600 hover:bg-violet-500"
+        >
           {loading ? "Creating..." : "Register"}
         </button>
         <small>

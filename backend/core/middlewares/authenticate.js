@@ -4,8 +4,7 @@ const User = require("../models/User");
 const authenticateToken = async (req, res, next) => {
   try {
     const token =
-      req.cookies?.token ||
-      req.header("Authorization")?.replace("Bearer ", "");
+      req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
       return res.status(401).json({ error: "Access denied" });
@@ -13,7 +12,9 @@ const authenticateToken = async (req, res, next) => {
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(payload.user_id)
-      .select("username email fullname role type assignedDomains assignedProjects")
+      .select(
+        "username email fullname role type assignedDomains assignedProjects",
+      )
       .lean();
 
     if (!user) {

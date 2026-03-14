@@ -3,21 +3,37 @@ import { Link } from "react-router-dom";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
+const initialProjectForm = {
+  name: "",
+  status: "active",
+  customerId: "",
+  domainId: "",
+  responseTime: 8,
+  deadline: "",
+  riskThreshold: -0.4,
+};
+
 export default function ProjectsPage() {
   const { isManager } = useAuth();
   const [projects, setProjects] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [createForm, setCreateForm] = useState({ name: "", customerId: "" });
+  const [domains, setDomains] = useState([]);
+  const [createForm, setCreateForm] = useState(initialProjectForm);
   const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const load = async () => {
-    const [pRes, cRes] = await Promise.all([
+    const [pRes, cRes, dRes] = await Promise.all([
       api.get("/projects"),
       api.get("/customers"),
+      api.get("/domains"),
     ]);
     setProjects(pRes.data || []);
     setCustomers(cRes.data || []);
+    setDomains(dRes.data || []);
   };
 
   useEffect(() => {
@@ -26,18 +42,37 @@ export default function ProjectsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const onCustomerChange = (customerId) => {
+    const selectedCustomer = customers.find((c) => c._id === customerId);
+    const domainId =
+      selectedCustomer?.domainId?._id || selectedCustomer?.domainId || "";
+    setCreateForm((s) => ({ ...s, customerId, domainId }));
+  };
+
   const onCreate = async (e) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
+    setSaving(true);
     try {
       await api.post("/projects", {
         name: createForm.name,
+        status: createForm.status,
         customerId: createForm.customerId,
+        domainId: createForm.domainId,
+        sla: {
+          responseTime: Number(createForm.responseTime),
+          deadline: createForm.deadline,
+          riskThreshold: Number(createForm.riskThreshold),
+        },
       });
-      setCreateForm({ name: "", customerId: "" });
+      setCreateForm(initialProjectForm);
       await load();
+      return true;
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to create project");
+      setFormError(err.response?.data?.error || "Failed to create project");
+      return false;
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -45,39 +80,23 @@ export default function ProjectsPage() {
 
   return (
     <div className="page-shell">
-      <h2>Projects</h2>
+      <div className="page-title-row">
+        <h2>Engagement Projects</h2>
+        {isManager ? (
+          <button
+            type="button"
+            onClick={() => {
+              setFormError("");
+              setCreateForm(initialProjectForm);
+              setShowCreateModal(true);
+            }}
+          >
+            Create Project
+          </button>
+        ) : null}
+      </div>
 
-      {isManager ? (
-        <section className="card">
-          <h3>Create Project</h3>
-          <form className="inline-form" onSubmit={onCreate}>
-            <input
-              required
-              placeholder="Project name"
-              value={createForm.name}
-              onChange={(e) =>
-                setCreateForm((s) => ({ ...s, name: e.target.value }))
-              }
-            />
-            <select
-              required
-              value={createForm.customerId}
-              onChange={(e) =>
-                setCreateForm((s) => ({ ...s, customerId: e.target.value }))
-              }
-            >
-              <option value="">Select customer</option>
-              {customers.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            <button type="submit">Create</button>
-          </form>
-          {error ? <div className="error">{error}</div> : null}
-        </section>
-      ) : null}
+      {error ? <div className="error">{error}</div> : null}
 
       <div className="table-wrap card">
         <table>
@@ -107,6 +126,149 @@ export default function ProjectsPage() {
           </tbody>
         </table>
       </div>
+
+      {isManager && showCreateModal ? (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <section
+            className="card modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="section-head">
+              <h3>Create Project</h3>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowCreateModal(false)}
+              >
+                Close
+              </button>
+            </div>
+            <form
+              className="grid-form"
+              onSubmit={async (e) => {
+                const success = await onCreate(e);
+                if (success) setShowCreateModal(false);
+              }}
+            >
+              <label>
+                Project Name
+                <input
+                  required
+                  placeholder="Project name"
+                  value={createForm.name}
+                  onChange={(e) =>
+                    setCreateForm((s) => ({ ...s, name: e.target.value }))
+                  }
+                />
+              </label>
+              <label>
+                Customer
+                <select
+                  required
+                  value={createForm.customerId}
+                  onChange={(e) => onCustomerChange(e.target.value)}
+                >
+                  <option value="">Select customer</option>
+                  {customers.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Domain
+                <select
+                  required
+                  value={createForm.domainId}
+                  onChange={(e) =>
+                    setCreateForm((s) => ({ ...s, domainId: e.target.value }))
+                  }
+                >
+                  <option value="">Select domain</option>
+                  {domains.map((d) => (
+                    <option key={d._id} value={d._id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                SLA Response Time (hours)
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  value={createForm.responseTime}
+                  onChange={(e) =>
+                    setCreateForm((s) => ({
+                      ...s,
+                      responseTime: Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label>
+                SLA Deadline
+                <input
+                  type="date"
+                  required
+                  value={createForm.deadline}
+                  onChange={(e) =>
+                    setCreateForm((s) => ({ ...s, deadline: e.target.value }))
+                  }
+                />
+              </label>
+              <label>
+                SLA Risk Threshold
+                <input
+                  type="number"
+                  step="0.01"
+                  min="-1"
+                  max="1"
+                  required
+                  value={createForm.riskThreshold}
+                  onChange={(e) =>
+                    setCreateForm((s) => ({
+                      ...s,
+                      riskThreshold: Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label>
+                Status
+                <select
+                  value={createForm.status}
+                  onChange={(e) =>
+                    setCreateForm((s) => ({ ...s, status: e.target.value }))
+                  }
+                >
+                  <option value="active">Active</option>
+                  <option value="on-hold">On Hold</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </label>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowCreateModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving}>
+                  {saving ? "Creating..." : "Create Project"}
+                </button>
+              </div>
+            </form>
+            {formError ? <div className="error">{formError}</div> : null}
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

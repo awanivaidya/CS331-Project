@@ -55,7 +55,8 @@ const getCommunication = async (req, res) => {
       return res.status(404).json({ error: "Communication not found" });
 
     const allowedDomains = staffDomainFilter(req);
-    const communicationDomainId = comm.domainId?._id?.toString?.() || comm.domainId?.toString();
+    const communicationDomainId =
+      comm.domainId?._id?.toString?.() || comm.domainId?.toString();
     if (allowedDomains && !allowedDomains.includes(communicationDomainId)) {
       return res.status(403).json({ error: "Access denied for this domain" });
     }
@@ -93,7 +94,9 @@ const uploadEmail = async (req, res) => {
     const project = await Project.findById(projectId).lean();
     if (!project) return res.status(404).json({ error: "Project not found" });
     if (project.customerId.toString() !== customerId) {
-      return res.status(400).json({ error: "customerId does not match project" });
+      return res
+        .status(400)
+        .json({ error: "customerId does not match project" });
     }
     if (project.domainId.toString() !== domainId) {
       return res.status(400).json({ error: "domainId does not match project" });
@@ -102,7 +105,9 @@ const uploadEmail = async (req, res) => {
     const customer = await Customer.findById(customerId).lean();
     if (!customer) return res.status(404).json({ error: "Customer not found" });
     if (customer.domainId.toString() !== domainId) {
-      return res.status(400).json({ error: "domainId does not match customer" });
+      return res
+        .status(400)
+        .json({ error: "domainId does not match customer" });
     }
 
     // Step 1: Create communication entry
@@ -208,7 +213,9 @@ const uploadTranscript = async (req, res) => {
     const project = await Project.findById(projectId).lean();
     if (!project) return res.status(404).json({ error: "Project not found" });
     if (project.customerId.toString() !== customerId) {
-      return res.status(400).json({ error: "customerId does not match project" });
+      return res
+        .status(400)
+        .json({ error: "customerId does not match project" });
     }
     if (project.domainId.toString() !== domainId) {
       return res.status(400).json({ error: "domainId does not match project" });
@@ -217,7 +224,9 @@ const uploadTranscript = async (req, res) => {
     const customer = await Customer.findById(customerId).lean();
     if (!customer) return res.status(404).json({ error: "Customer not found" });
     if (customer.domainId.toString() !== domainId) {
-      return res.status(400).json({ error: "domainId does not match customer" });
+      return res
+        .status(400)
+        .json({ error: "domainId does not match customer" });
     }
 
     // Step 1: Create communication entry

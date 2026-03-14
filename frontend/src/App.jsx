@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AlertsPage from "./pages/AlertsPage";
 import CustomersPage from "./pages/CustomersPage";
+import CustomerDetailsPage from "./pages/CustomerDetailsPage";
 import DashboardPage from "./pages/DashboardPage";
 import DomainsPage from "./pages/DomainsPage";
 import LoginPage from "./pages/LoginPage";
@@ -30,6 +31,7 @@ function App() {
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/:id" element={<ProjectDetailsPage />} />
           <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers/:id" element={<CustomerDetailsPage />} />
           <Route path="alerts" element={<AlertsPage />} />
           <Route
             path="domains"

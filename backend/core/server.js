@@ -22,9 +22,20 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 const cookieParser = require("cookie-parser");
+const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN,
+  "http://localhost:5173",
+  "http://localhost:5174",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+    origin(origin, callback) {
+      // Allow non-browser clients and same-origin requests without Origin header.
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS origin not allowed"));
+    },
     credentials: true,
   }),
 );

@@ -89,19 +89,21 @@ export default function ProjectDetailsPage() {
     }
   };
 
-  if (!project) return <div className="page-shell">Loading project details...</div>;
+  if (!project)
+    return <div className="page-shell">Loading project details...</div>;
 
   return (
     <div className="page-shell">
-      <h2>{project.name}</h2>
+      <h2>Cloud Engagement</h2>
       <div className="card-grid">
         <section className="card">
-          <h3>Project Meta</h3>
+          <h3>{project.name}</h3>
           <p>Customer: {project.customerId?.name || "-"}</p>
           <p>Domain: {project.domainId?.name || "-"}</p>
           <p>Status: {project.status}</p>
           <p>
-            Current Communication Sentiment: <SentimentBadge score={customerSentiment || 0} />
+            Current Communication Sentiment:{" "}
+            <SentimentBadge score={customerSentiment || 0} />
           </p>
         </section>
 
@@ -115,15 +117,24 @@ export default function ProjectDetailsPage() {
         </section>
       </div>
 
+      <section className="card">
+        <div className="section-head">
+          <div className="muted">Overview</div>
+          <div className="muted">Documents</div>
+        </div>
+      </section>
+
       {isManager ? (
         <section className="card">
-          <h3>Add Communication</h3>
+          <h3>Add Communication (NLP)</h3>
           <form className="stack" onSubmit={onSubmit}>
             <label>
               Type
               <select
                 value={form.type}
-                onChange={(e) => setForm((s) => ({ ...s, type: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, type: e.target.value }))
+                }
               >
                 <option value="email">Email</option>
                 <option value="transcript">Meeting Transcript</option>
@@ -137,7 +148,9 @@ export default function ProjectDetailsPage() {
                   <input
                     required
                     value={form.subject}
-                    onChange={(e) => setForm((s) => ({ ...s, subject: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, subject: e.target.value }))
+                    }
                   />
                 </label>
                 <label>
@@ -145,7 +158,9 @@ export default function ProjectDetailsPage() {
                   <input
                     required
                     value={form.sender}
-                    onChange={(e) => setForm((s) => ({ ...s, sender: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, sender: e.target.value }))
+                    }
                   />
                 </label>
               </>
@@ -157,7 +172,9 @@ export default function ProjectDetailsPage() {
                     type="date"
                     required
                     value={form.meetingDate}
-                    onChange={(e) => setForm((s) => ({ ...s, meetingDate: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, meetingDate: e.target.value }))
+                    }
                   />
                 </label>
                 <label>
@@ -179,7 +196,9 @@ export default function ProjectDetailsPage() {
                 required
                 rows={6}
                 value={form.content}
-                onChange={(e) => setForm((s) => ({ ...s, content: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, content: e.target.value }))
+                }
               />
             </label>
 

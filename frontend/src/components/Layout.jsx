@@ -12,26 +12,42 @@ export default function Layout() {
   };
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <h1>Service Pulse</h1>
-        <p className="muted">AI Communication & Risk Hub</p>
-        <nav>
+    <div className="app-shell min-h-screen">
+      <aside className="sidebar border-r border-slate-700/60">
+        <div className="brand-row">
+          <div className="brand-avatar">SP</div>
+          <div>
+            <h1>Service Pulse</h1>
+            <p className="online-dot">Online</p>
+          </div>
+        </div>
+        <nav className="mt-2">
           <NavLink to="/dashboard">Dashboard</NavLink>
           <NavLink to="/projects">Projects</NavLink>
           <NavLink to="/customers">Customers</NavLink>
           <NavLink to="/alerts">Risk Alerts</NavLink>
-          {isManager ? <NavLink to="/domains">Domains</NavLink> : null}
+          <NavLink to="/dashboard">Reports</NavLink>
+          {isManager ? <NavLink to="/domains">Settings</NavLink> : null}
         </nav>
-        <div className="profile-box">
-          <div>{user?.fullname || user?.username}</div>
-          <small>{user?.type || user?.role}</small>
+        <div className="profile-box mt-auto">
+          <div className="profile-main">
+            <div className="brand-avatar small">
+              {(user?.fullname || user?.username || "U")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+            <div>
+              <div>{user?.fullname || user?.username}</div>
+              <small>{user?.type || user?.role}</small>
+            </div>
+          </div>
           <button type="button" onClick={onLogout}>
             Logout
           </button>
         </div>
       </aside>
-      <main className="content">
+      <main className="content bg-gradient-to-br from-slate-950 to-slate-900">
+        <div className="content-brand">Service Pulse</div>
         <RiskAlertBanner />
         <Outlet />
       </main>

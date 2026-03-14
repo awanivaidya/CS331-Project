@@ -1,9 +1,9 @@
 const express = require("express");
 const {
-	registerUser,
-	loginUser,
-	logoutUser,
-	getCurrentUser,
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser,
 } = require("../controllers/authController");
 const { authenticateToken } = require("../middlewares/authenticate");
 const router = express.Router();

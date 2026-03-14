@@ -4,7 +4,7 @@
  * assignedProjects / assignedDomains used only for Staff (visibility restriction).
  */
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
@@ -12,16 +12,18 @@ const userSchema = new mongoose.Schema(
     email: { type: String, unique: true },
     fullname: { type: String },
     password: { type: String },
-    role: { type: String, enum: ['Manager', 'Staff'], default: 'Staff' },
+    role: { type: String, enum: ["Manager", "Staff"], default: "Staff" },
     type: {
       type: String,
-      enum: ['User', 'Manager', 'Staff'],
-      default: 'Staff',
+      enum: ["User", "Manager", "Staff"],
+      default: "Staff",
     },
-    assignedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
-    assignedDomains: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Domain' }],
+    assignedProjects: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Project" },
+    ],
+    assignedDomains: [{ type: mongoose.Schema.Types.ObjectId, ref: "Domain" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

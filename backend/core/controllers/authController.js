@@ -14,18 +14,26 @@ const normalizeUserType = (value) => {
 };
 
 const registerUser = async (req, res) => {
-  const { username, email, fullname, password, role, type, assignedDomains } = req.body;
+  const { username, email, fullname, password, role, type, assignedDomains } =
+    req.body;
   if ([username, email, fullname, password].some((item) => item == null)) {
     return res.status(400).json({ error: "All fields required!" });
   }
 
   const userType = normalizeUserType(type || role);
   if (!userType) {
-    return res.status(400).json({ error: "type/role must be Manager or Staff" });
+    return res
+      .status(400)
+      .json({ error: "type/role must be Manager or Staff" });
   }
 
-  if (userType === "Staff" && (!Array.isArray(assignedDomains) || assignedDomains.length === 0)) {
-    return res.status(400).json({ error: "Staff must have at least one assigned domain" });
+  if (
+    userType === "Staff" &&
+    (!Array.isArray(assignedDomains) || assignedDomains.length === 0)
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Staff must have at least one assigned domain" });
   }
 
   try {
@@ -56,7 +64,7 @@ const registerUser = async (req, res) => {
         user_id: createdUser._id.toString(),
         username: createdUser.username,
       },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     );
 
     return res
@@ -109,7 +117,7 @@ const loginUser = async (req, res) => {
       user_id: user._id.toString(),
       username: user.username,
     },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
   );
 
   return res
