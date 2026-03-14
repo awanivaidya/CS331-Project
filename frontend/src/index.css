@@ -9,7 +9,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0f0f1a;
+  background-color: #0f172a;
   color: #ffffff;
 }
 
@@ -19,18 +19,18 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-all;
   }
   
   .btn-secondary {
-    @apply bg-dark-card hover:bg-dark-hover text-white font-medium py-2 px-4 rounded-lg border border-dark-border transition-colors;
+    @apply bg-[#1e293b] hover:bg-[#334155] text-white font-medium py-2 px-4 rounded-lg border border-[#334155] transition-all;
   }
   
   .card {
-    @apply bg-dark-card rounded-xl p-6 border border-dark-border;
+    @apply bg-[#1e293b] rounded-xl p-6 border border-[#334155];
   }
   
   .input {
-    @apply bg-dark-bg border border-dark-border rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors;
+    @apply bg-[#1e293b] border border-[#334155] rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors;
   }
 }

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { customersAPI, communicationsAPI, alertsAPI, projectsAPI } from '../api/api';
+import { MdNotifications, MdAdd } from 'react-icons/md';
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeEngagements: 0,
@@ -95,12 +98,12 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-dark-bg">
-      <div className="p-6 border-b border-dark-border">
+    <div className="flex-1 flex flex-col bg-[#0f172a]">
+      <div className="p-6 border-b border-[#1e293b]">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-          <button className="flex items-center gap-2 text-2xl text-gray-400 hover:text-white">
-            🔔
+          <button className="flex items-center gap-2 text-2xl text-gray-400 hover:text-primary-400 transition-colors">
+            <MdNotifications />
           </button>
         </div>
         
@@ -110,10 +113,13 @@ const DashboardPage = () => {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input flex-1 max-w-md"
+            className="input flex-1 max-w-md bg-[#1e293b] border-[#334155]"
           />
-          <button className="btn-primary flex items-center gap-2">
-            <span className="text-xl">+</span>
+          <button 
+            onClick={() => navigate('/projects')}
+            className="btn-primary flex items-center gap-2"
+          >
+            <MdAdd className="text-xl" />
             New Engagement
           </button>
         </div>
@@ -121,32 +127,35 @@ const DashboardPage = () => {
 
       <div className="flex-1 p-6 overflow-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="card relative">
+          <div className="bg-[#1e293b] rounded-xl p-6 border border-[#334155] relative">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-white font-semibold">Total Customers</h3>
-              <button className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700">
-                +
+              <button 
+                onClick={() => navigate('/customers')}
+                className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700 transition-colors"
+              >
+                <MdAdd />
               </button>
             </div>
             <p className="text-4xl font-bold text-white">{stats.totalCustomers}</p>
           </div>
 
-          <div className="card relative">
+          <div className="bg-[#1e293b] rounded-xl p-6 border border-[#334155] relative">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-white font-semibold">Active Engagements</h3>
-              <button className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700">
-                +
+              <button 
+                onClick={() => navigate('/projects')}
+                className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700 transition-colors"
+              >
+                <MdAdd />
               </button>
             </div>
             <p className="text-4xl font-bold text-white">{stats.activeEngagements}</p>
           </div>
 
-          <div className="card relative">
+          <div className="bg-[#1e293b] rounded-xl p-6 border border-[#334155] relative">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-white font-semibold">Engagement Status</h3>
-              <button className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700">
-                +
-              </button>
             </div>
             <div className="flex items-center justify-center my-4">
               <div className="relative w-40 h-40">
@@ -222,10 +231,10 @@ const DashboardPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="card">
+          <div className="bg-[#1e293b] rounded-xl p-6 border border-[#334155]">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white">Recent Activity</h3>
-              <button className="text-primary-400 hover:text-primary-300 text-sm">
+              <button className="text-primary-400 hover:text-primary-300 text-sm transition-colors">
                 View all activity
               </button>
             </div>
@@ -253,7 +262,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="card">
+          <div className="bg-[#1e293b] rounded-xl p-6 border border-[#334155]">
             <h3 className="text-xl font-bold text-white mb-6">Upcoming Deadlines</h3>
             <div className="space-y-3">
               <div className="text-gray-300">
@@ -268,19 +277,19 @@ const DashboardPage = () => {
               <div className="text-gray-300">
                 <p className="font-medium">Stakeholder Review Meeting</p>
               </div>
-              <button className="text-primary-400 hover:text-primary-300 text-sm mt-4">
+              <button className="text-primary-400 hover:text-primary-300 text-sm mt-4 transition-colors">
                 View all deadlines
               </button>
             </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-[#1e293b] rounded-xl p-6 border border-[#334155]">
           <h3 className="text-xl font-bold text-white mb-6">At-Risk Engagements</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-dark-border">
+                <tr className="border-b border-[#334155]">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Client</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Engagement</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Type</th>
@@ -291,7 +300,7 @@ const DashboardPage = () => {
               <tbody>
                 {atRiskEngagements.length > 0 ? (
                   atRiskEngagements.map((engagement, idx) => (
-                    <tr key={idx} className="border-b border-dark-border">
+                    <tr key={idx} className="border-b border-[#334155]">
                       <td className="py-3 px-4 text-gray-300">{engagement.client}</td>
                       <td className="py-3 px-4 text-gray-300">{engagement.engagement}</td>
                       <td className="py-3 px-4">
@@ -305,7 +314,7 @@ const DashboardPage = () => {
                       </td>
                       <td className="py-3 px-4 text-gray-300">{engagement.owner}</td>
                       <td className="py-3 px-4">
-                        <button className="text-primary-400 hover:text-primary-300 text-sm">
+                        <button className="text-primary-400 hover:text-primary-300 text-sm transition-colors">
                           View
                         </button>
                       </td>
