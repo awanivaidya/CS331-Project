@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
     priority: { type: String, default: "normal" },
     sentimentScore: { type: Number, default: 0 },
     riskStatus: {
