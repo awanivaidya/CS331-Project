@@ -17,7 +17,7 @@ export default function Layout() {
         <div className="brand-row">
           <div className="brand-avatar">SP</div>
           <div>
-            <h1>Service Pulse</h1>
+            <h1>Customer Analytics</h1>
             <p className="online-dot">Online</p>
           </div>
         </div>
@@ -26,7 +26,6 @@ export default function Layout() {
           <NavLink to="/projects">Projects</NavLink>
           <NavLink to="/customers">Customers</NavLink>
           <NavLink to="/alerts">Risk Alerts</NavLink>
-          <NavLink to="/dashboard">Reports</NavLink>
           {isManager ? <NavLink to="/domains">Settings</NavLink> : null}
         </nav>
         <div className="profile-box mt-auto">
@@ -46,8 +45,8 @@ export default function Layout() {
           </button>
         </div>
       </aside>
-      <main className="content bg-gradient-to-br from-slate-950 to-slate-900">
-        <div className="content-brand">Service Pulse</div>
+      <main className="content">
+        <div className="content-brand">Customer Analytics</div>
         <RiskAlertBanner />
         <Outlet />
       </main>

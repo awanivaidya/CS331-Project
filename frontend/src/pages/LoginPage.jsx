@@ -24,43 +24,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <form
-        className="card auth-card border-slate-700/60 bg-slate-800/80 text-slate-100"
-        onSubmit={onSubmit}
-      >
-        <h2 className="text-3xl font-semibold">Sign In</h2>
-        <p className="muted text-slate-300">
-          Use username or email and your password.
-        </p>
-        <label>
+    <div className="auth-page">
+      <form className="auth-card" onSubmit={onSubmit}>
+        <div className="auth-header">
+          <h1 className="auth-title">Customer Analytics</h1>
+          <p className="auth-subtitle">Sign in to your account</p>
+        </div>
+        <label className="auth-label">
           Username or Email
           <input
+            className="auth-input"
             required
             value={form.name}
             onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+            placeholder="you@example.com"
           />
         </label>
-        <label>
+        <label className="auth-label">
           Password
           <input
+            className="auth-input"
             required
             type="password"
             value={form.password}
             onChange={(e) =>
               setForm((s) => ({ ...s, password: e.target.value }))
             }
+            placeholder="••••••••"
           />
         </label>
-        {error ? <div className="error">{error}</div> : null}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-violet-600 hover:bg-violet-500"
-        >
-          {loading ? "Signing in..." : "Login"}
+        {error ? <div className="auth-message auth-message-error">{error}</div> : null}
+        <button type="submit" disabled={loading} className="auth-submit">
+          {loading ? "Signing in..." : "Sign In"}
         </button>
-        <small>
+        <small className="auth-footnote">
           No account? <Link to="/register">Register</Link>
         </small>
       </form>

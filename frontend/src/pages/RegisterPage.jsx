@@ -52,55 +52,64 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-page bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <form
-        className="card auth-card border-slate-700/60 bg-slate-800/80 text-slate-100"
-        onSubmit={onSubmit}
-      >
-        <h2 className="text-3xl font-semibold">Create Account</h2>
-        <label>
+    <div className="auth-page">
+      <form className="auth-card" onSubmit={onSubmit}>
+        <div className="auth-header">
+          <h1 className="auth-title">Customer Analytics</h1>
+          <p className="auth-subtitle">Create a new account</p>
+        </div>
+        <label className="auth-label">
           Username
           <input
+            className="auth-input"
             required
             value={form.username}
             onChange={(e) =>
               setForm((s) => ({ ...s, username: e.target.value }))
             }
+            placeholder="johndoe"
           />
         </label>
-        <label>
+        <label className="auth-label">
           Full Name
           <input
+            className="auth-input"
             required
             value={form.fullname}
             onChange={(e) =>
               setForm((s) => ({ ...s, fullname: e.target.value }))
             }
+            placeholder="John Doe"
           />
         </label>
-        <label>
+        <label className="auth-label">
           Email
           <input
+            className="auth-input"
             type="email"
             required
             value={form.email}
             onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
+            placeholder="you@example.com"
           />
         </label>
-        <label>
+        <label className="auth-label">
           Password
           <input
+            className="auth-input"
             type="password"
             required
             value={form.password}
             onChange={(e) =>
               setForm((s) => ({ ...s, password: e.target.value }))
             }
+            placeholder="••••••••"
           />
         </label>
-        <label>
+        <label className="auth-label">
           User Type
           <select
+            className="auth-input"
             value={form.type}
             onChange={(e) =>
               setForm((s) => ({
@@ -133,15 +142,11 @@ export default function RegisterPage() {
           </fieldset>
         ) : null}
 
-        {error ? <div className="error">{error}</div> : null}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-violet-600 hover:bg-violet-500"
-        >
-          {loading ? "Creating..." : "Register"}
+        {error ? <div className="auth-message auth-message-error">{error}</div> : null}
+        <button type="submit" disabled={loading} className="auth-submit">
+          {loading ? "Creating..." : "Create Account"}
         </button>
-        <small>
+        <small className="auth-footnote">
           Already have an account? <Link to="/login">Login</Link>
         </small>
       </form>
