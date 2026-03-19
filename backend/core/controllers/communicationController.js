@@ -20,6 +20,9 @@ const staffDomainFilter = (req) => {
   return domains.map((id) => id.toString());
 };
 
+const toIdString = (value) =>
+  value?._id?.toString?.() || value?.toString?.() || null;
+
 const listCommunications = async (req, res) => {
   try {
     const filter = {};
@@ -55,8 +58,7 @@ const getCommunication = async (req, res) => {
       return res.status(404).json({ error: "Communication not found" });
 
     const allowedDomains = staffDomainFilter(req);
-    const communicationDomainId =
-      comm.domainId?._id?.toString?.() || comm.domainId?.toString();
+    const communicationDomainId = toIdString(comm.domainId);
     if (allowedDomains && !allowedDomains.includes(communicationDomainId)) {
       return res.status(403).json({ error: "Access denied for this domain" });
     }
@@ -93,18 +95,33 @@ const uploadEmail = async (req, res) => {
 
     const project = await Project.findById(projectId).lean();
     if (!project) return res.status(404).json({ error: "Project not found" });
-    if (project.customerId.toString() !== customerId) {
+    const projectCustomerId = toIdString(project.customerId);
+    const projectDomainId = toIdString(project.domainId);
+    if (!projectCustomerId || !projectDomainId) {
+      return res.status(409).json({
+        error: "Project is missing customer/domain linkage",
+      });
+    }
+
+    if (projectCustomerId !== String(customerId)) {
       return res
         .status(400)
         .json({ error: "customerId does not match project" });
     }
-    if (project.domainId.toString() !== domainId) {
+    if (projectDomainId !== String(domainId)) {
       return res.status(400).json({ error: "domainId does not match project" });
     }
 
     const customer = await Customer.findById(customerId).lean();
     if (!customer) return res.status(404).json({ error: "Customer not found" });
-    if (customer.domainId.toString() !== domainId) {
+    const customerDomainId = toIdString(customer.domainId);
+    if (!customerDomainId) {
+      return res
+        .status(409)
+        .json({ error: "Customer is missing domain linkage" });
+    }
+
+    if (customerDomainId !== String(domainId)) {
       return res
         .status(400)
         .json({ error: "domainId does not match customer" });
@@ -212,18 +229,33 @@ const uploadTranscript = async (req, res) => {
 
     const project = await Project.findById(projectId).lean();
     if (!project) return res.status(404).json({ error: "Project not found" });
-    if (project.customerId.toString() !== customerId) {
+    const projectCustomerId = toIdString(project.customerId);
+    const projectDomainId = toIdString(project.domainId);
+    if (!projectCustomerId || !projectDomainId) {
+      return res.status(409).json({
+        error: "Project is missing customer/domain linkage",
+      });
+    }
+
+    if (projectCustomerId !== String(customerId)) {
       return res
         .status(400)
         .json({ error: "customerId does not match project" });
     }
-    if (project.domainId.toString() !== domainId) {
+    if (projectDomainId !== String(domainId)) {
       return res.status(400).json({ error: "domainId does not match project" });
     }
 
     const customer = await Customer.findById(customerId).lean();
     if (!customer) return res.status(404).json({ error: "Customer not found" });
-    if (customer.domainId.toString() !== domainId) {
+    const customerDomainId = toIdString(customer.domainId);
+    if (!customerDomainId) {
+      return res
+        .status(409)
+        .json({ error: "Customer is missing domain linkage" });
+    }
+
+    if (customerDomainId !== String(domainId)) {
       return res
         .status(400)
         .json({ error: "domainId does not match customer" });
@@ -339,7 +371,14 @@ const analyzeExistingCommunication = async (req, res) => {
       return res.status(404).json({ error: "Communication not found" });
 
     const allowedDomains = staffDomainFilter(req);
-    if (allowedDomains && !allowedDomains.includes(comm.domainId.toString())) {
+    const communicationDomainId = toIdString(comm.domainId);
+    if (!communicationDomainId) {
+      return res
+        .status(409)
+        .json({ error: "Communication is missing domain linkage" });
+    }
+
+    if (allowedDomains && !allowedDomains.includes(communicationDomainId)) {
       return res.status(403).json({ error: "Access denied for this domain" });
     }
 
