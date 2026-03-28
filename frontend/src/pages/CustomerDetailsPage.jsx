@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../api/client";
 import SentimentBadge from "../components/SentimentBadge";
+import { useAuth } from "../context/AuthContext";
 
 const stakeholders = [
   { initials: "JD", name: "John Doe", role: "CTO" },
@@ -11,11 +12,13 @@ const stakeholders = [
 
 export default function CustomerDetailsPage() {
   const { id } = useParams();
+  const { isManager } = useAuth();
   const [customer, setCustomer] = useState(null);
   const [projects, setProjects] = useState([]);
   const [communications, setCommunications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingProjectId, setDeletingProjectId] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -70,6 +73,24 @@ export default function CustomerDetailsPage() {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "-";
     return d.toLocaleDateString();
+  };
+
+  const onDeleteProject = async (project) => {
+    const confirmed = window.confirm(
+      `Delete project "${project.name}"? This action cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setError("");
+    setDeletingProjectId(project._id);
+    try {
+      await api.delete(`/projects/${project._id}`);
+      setProjects((prev) => prev.filter((p) => p._id !== project._id));
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to delete project");
+    } finally {
+      setDeletingProjectId(null);
+    }
   };
 
   if (loading) return <div className="page-shell">Loading customer...</div>;
@@ -147,16 +168,22 @@ export default function CustomerDetailsPage() {
       <section className="card table-wrap">
         <div className="section-head">
           <h3>Projects</h3>
-          <span className="muted">Open to view tasks and communication</span>
         </div>
-        <table>
+        <table className="customer-projects-table">
+          <colgroup>
+            <col className="col-project" />
+            <col className="col-domain" />
+            <col className="col-status" />
+            <col className="col-tasks" />
+            <col className="col-actions" />
+          </colgroup>
           <thead>
             <tr>
               <th>Project</th>
               <th>Domain</th>
               <th>Status</th>
               <th>Tasks</th>
-              <th>Action</th>
+              <th className="actions-col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -166,8 +193,22 @@ export default function CustomerDetailsPage() {
                 <td>{p.domainId?.name || "-"}</td>
                 <td>{p.status}</td>
                 <td>{(p.tasks || []).length}</td>
-                <td>
-                  <Link to={`/projects/${p._id}`}>Open Project</Link>
+                <td className="actions-col">
+                  <div className="actions-group">
+                    <Link className="btn-open" to={`/projects/${p._id}`}>
+                      Open
+                    </Link>
+                    {isManager ? (
+                      <button
+                        type="button"
+                        className="btn-danger"
+                        onClick={() => onDeleteProject(p)}
+                        disabled={deletingProjectId === p._id}
+                      >
+                        {deletingProjectId === p._id ? "Deleting..." : "Delete"}
+                      </button>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}

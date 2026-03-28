@@ -23,6 +23,7 @@ export default function ProjectsPage() {
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingProjectId, setDeletingProjectId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const load = async () => {
@@ -76,6 +77,24 @@ export default function ProjectsPage() {
     }
   };
 
+  const onDeleteProject = async (project) => {
+    const confirmed = window.confirm(
+      `Delete project "${project.name}"? This action cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setError("");
+    setDeletingProjectId(project._id);
+    try {
+      await api.delete(`/projects/${project._id}`);
+      await load();
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to delete project");
+    } finally {
+      setDeletingProjectId(null);
+    }
+  };
+
   if (loading) return <div className="page-shell">Loading projects...</div>;
 
   return (
@@ -99,7 +118,15 @@ export default function ProjectsPage() {
       {error ? <div className="error">{error}</div> : null}
 
       <div className="table-wrap card">
-        <table>
+        <table className="projects-table">
+          <colgroup>
+            <col className="col-name" />
+            <col className="col-customer" />
+            <col className="col-domain" />
+            <col className="col-status" />
+            <col className="col-tasks" />
+            <col className="col-actions" />
+          </colgroup>
           <thead>
             <tr>
               <th>Name</th>
@@ -107,7 +134,7 @@ export default function ProjectsPage() {
               <th>Domain</th>
               <th>Status</th>
               <th>Tasks</th>
-              <th>Action</th>
+              <th className="actions-col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -118,8 +145,22 @@ export default function ProjectsPage() {
                 <td>{p.domainId?.name || "-"}</td>
                 <td>{p.status}</td>
                 <td>{Array.isArray(p.tasks) ? p.tasks.length : 0}</td>
-                <td>
-                  <Link to={`/projects/${p._id}`}>Open</Link>
+                <td className="actions-col">
+                  <div className="actions-group">
+                    <Link className="btn-open" to={`/projects/${p._id}`}>
+                      Open
+                    </Link>
+                    {isManager ? (
+                      <button
+                        type="button"
+                        className="btn-danger"
+                        onClick={() => onDeleteProject(p)}
+                        disabled={deletingProjectId === p._id}
+                      >
+                        {deletingProjectId === p._id ? "Deleting..." : "Delete"}
+                      </button>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}

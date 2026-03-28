@@ -48,18 +48,33 @@ export default function CustomersPage() {
     [domains],
   );
 
+  const resolveDomainMeta = (customer) => {
+    const rawDomain = customer?.domainId;
+
+    if (rawDomain && typeof rawDomain === "object") {
+      const domainId = (rawDomain._id || "").toString();
+      const domainName = rawDomain.name || domainLookup[domainId] || "";
+      return { domainId, domainName };
+    }
+
+    const domainId = (rawDomain || "").toString();
+    const domainName = domainLookup[domainId] || "";
+    return { domainId, domainName };
+  };
+
   const filteredCustomers = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
     return customers.filter((c) => {
-      const customerDomain = c.domainId?.name || domainLookup[c.domainId] || "";
+      const { domainId, domainName } = resolveDomainMeta(c);
       const matchesQuery =
-        !query ||
-        c.name.toLowerCase().includes(query.toLowerCase()) ||
-        customerDomain.toLowerCase().includes(query.toLowerCase());
+        !normalizedQuery ||
+        c.name.toLowerCase().includes(normalizedQuery) ||
+        domainName.toLowerCase().includes(normalizedQuery);
       const matchesRisk =
         riskFilter === "all" || (c.riskStatus || "stable") === riskFilter;
-      const customerDomainId = (c.domainId?._id || c.domainId || "").toString();
       const matchesDomain =
-        domainFilter === "all" || customerDomainId === domainFilter;
+        domainFilter === "all" || domainId === domainFilter;
       return matchesQuery && matchesRisk && matchesDomain;
     });
   }, [customers, domainLookup, query, riskFilter, domainFilter]);
@@ -181,7 +196,7 @@ export default function CustomersPage() {
               />
             </div>
             <p className="muted">
-              Domain: {c.domainId?.name || domainLookup[c.domainId] || "-"}
+              Domain: {resolveDomainMeta(c).domainName || "-"}
             </p>
             <p className="muted">Priority: {c.priority}</p>
             <div className="customer-footer">

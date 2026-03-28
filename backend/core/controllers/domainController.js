@@ -3,6 +3,8 @@
  */
 
 const Domain = require('../models/Domain');
+const Customer = require('../models/Customer');
+const Project = require('../models/Project');
 
 const listDomains = async (req, res) => {
   try {
@@ -50,8 +52,25 @@ const updateDomain = async (req, res) => {
 
 const deleteDomain = async (req, res) => {
   try {
-    const domain = await Domain.findByIdAndDelete(req.params.id);
+    const domainId = req.params.id;
+    const domain = await Domain.findById(domainId).lean();
     if (!domain) return res.status(404).json({ error: 'Domain not found' });
+
+    const [customerCount, projectCount] = await Promise.all([
+      Customer.countDocuments({ domainId }),
+      Project.countDocuments({ domainId }),
+    ]);
+
+    if (customerCount > 0 || projectCount > 0) {
+      return res.status(409).json({
+        error:
+          'Cannot delete domain because it is linked to existing customers or projects',
+        linkedCustomers: customerCount,
+        linkedProjects: projectCount,
+      });
+    }
+
+    await Domain.findByIdAndDelete(domainId);
     res.json({ message: 'Domain deleted' });
   } catch (err) {
     res.status(400).json({ error: err.message });

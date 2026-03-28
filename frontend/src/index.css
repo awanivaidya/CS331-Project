@@ -273,6 +273,32 @@ label {
   border: 1px solid var(--line);
 }
 
+.btn-danger {
+  background: linear-gradient(90deg, #b91c1c, #dc2626);
+  border: 1px solid #7f1d1d;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: linear-gradient(90deg, #991b1b, #b91c1c);
+}
+
+.btn-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5rem;
+  padding: 0.6rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  color: #f8fafc;
+  background: var(--panel);
+}
+
+.btn-open:hover {
+  color: #f8fafc;
+  background: var(--panel-2);
+}
+
 .dashboard-grid {
   gap: 1rem;
 }
@@ -559,6 +585,58 @@ table {
   border-collapse: collapse;
 }
 
+.projects-table {
+  table-layout: fixed;
+}
+
+.projects-table .col-name {
+  width: 28%;
+}
+
+.projects-table .col-customer {
+  width: 21%;
+}
+
+.projects-table .col-domain {
+  width: 15%;
+}
+
+.projects-table .col-status {
+  width: 12%;
+}
+
+.projects-table .col-tasks {
+  width: 8%;
+}
+
+.projects-table .col-actions {
+  width: 16%;
+}
+
+.customer-projects-table {
+  table-layout: fixed;
+}
+
+.customer-projects-table .col-project {
+  width: 34%;
+}
+
+.customer-projects-table .col-domain {
+  width: 18%;
+}
+
+.customer-projects-table .col-status {
+  width: 14%;
+}
+
+.customer-projects-table .col-tasks {
+  width: 10%;
+}
+
+.customer-projects-table .col-actions {
+  width: 24%;
+}
+
 th,
 td {
   padding: 0.55rem;
@@ -571,6 +649,18 @@ th {
   color: var(--muted);
   font-size: 0.84rem;
   font-weight: 600;
+}
+
+th.actions-col,
+td.actions-col {
+  text-align: center;
+}
+
+.actions-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .task-list,
