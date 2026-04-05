@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon core/server.js"
+    "dev": "nodemon core/server.js",
+    "test:whitebox": "node tests/whitebox.run.js",
+    "test:blackbox": "node tests/blackbox.run.js",
+    "test:all": "npm run test:whitebox && npm run test:blackbox"
   },
   "keywords": [],
   "author": "",
