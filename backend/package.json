@@ -8,6 +8,7 @@
     "dev": "nodemon core/server.js",
     "test:whitebox": "node tests/whitebox.run.js",
     "test:blackbox": "node tests/blackbox.run.js",
+    "test:module-risk": "node tests/module-risk/run.module-risk-tests.js",
     "test:all": "npm run test:whitebox && npm run test:blackbox"
   },
   "keywords": [],

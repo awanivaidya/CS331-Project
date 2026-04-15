@@ -1,0 +1,66 @@
+[
+  {
+    "id": "TC-RISK-01",
+    "scenario": "Risk status should be stable when sentiment score is null",
+    "inputData": "{\"sentimentScore\":null}",
+    "expectedOutput": "stable",
+    "actualOutput": "stable",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-02",
+    "scenario": "Risk status should be critical when sentiment score is exactly -0.6",
+    "inputData": "{\"sentimentScore\":-0.6}",
+    "expectedOutput": "critical",
+    "actualOutput": "critical",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-03",
+    "scenario": "Risk status should be warning when sentiment score is exactly -0.3",
+    "inputData": "{\"sentimentScore\":-0.3}",
+    "expectedOutput": "warning",
+    "actualOutput": "warning",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-04",
+    "scenario": "Risk status should be stable for positive sentiment score",
+    "inputData": "{\"sentimentScore\":0.25}",
+    "expectedOutput": "stable",
+    "actualOutput": "stable",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-05",
+    "scenario": "Sentiment history should keep only the latest 10 entries",
+    "inputData": "{\"customer\":{\"sentimentHistory\":[{\"score\":-0.05,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.1,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.15000000000000002,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.2,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.25,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.30000000000000004,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.35000000000000003,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.4,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.45,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.5,\"timestamp\":\"2026-04-13T04:04:43.973Z\"}],\"sentimentScore\":-0.35,\"riskStatus\":\"warning\"},\"newScore\":-0.5}",
+    "expectedOutput": "{\"historyLength\":10,\"newestScore\":-0.5}",
+    "actualOutput": "{\"historyLength\":10,\"newestScore\":-0.5}",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-06",
+    "scenario": "Weighted average sentiment should update score and move status to critical",
+    "inputData": "{\"customer\":{\"sentimentHistory\":[{\"score\":0,\"timestamp\":\"2026-01-01T00:00:00.000Z\"},{\"score\":-0.9,\"timestamp\":\"2026-01-02T00:00:00.000Z\"},{\"score\":-0.9,\"timestamp\":\"2026-04-13T04:04:43.974Z\"}],\"sentimentScore\":-0.75,\"riskStatus\":\"critical\"},\"newScore\":-0.9}",
+    "expectedOutput": "{\"sentimentScore\":-0.75,\"riskStatus\":\"critical\"}",
+    "actualOutput": "{\"sentimentScore\":-0.75,\"riskStatus\":\"critical\"}",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-07",
+    "scenario": "Critical customer should generate a CRITICAL risk alert",
+    "inputData": "{\"customer\":{\"_id\":\"cust-1\",\"name\":\"ACME Corp\",\"sentimentScore\":-0.82,\"riskStatus\":\"critical\"},\"project\":{\"_id\":\"proj-1\",\"name\":\"Customer Platform\"}}",
+    "expectedOutput": "{\"severity\":\"CRITICAL\",\"type\":\"RISK_ALERT\"}",
+    "actualOutput": "{\"type\":\"RISK_ALERT\",\"severity\":\"CRITICAL\",\"timestamp\":\"2026-04-13T04:04:43.974Z\",\"customer\":{\"id\":\"cust-1\",\"name\":\"ACME Corp\",\"sentimentScore\":-0.82,\"riskStatus\":\"critical\"},\"project\":{\"id\":\"proj-1\",\"name\":\"Customer Platform\"},\"message\":\"CRITICAL: Customer \\\"ACME Corp\\\" - Project \\\"Customer Platform\\\" requires immediate attention. Sentiment score: -0.82\"}",
+    "status": "PASS"
+  },
+  {
+    "id": "TC-RISK-08",
+    "scenario": "Stable customer should not generate any alert",
+    "inputData": "{\"customer\":{\"_id\":\"cust-2\",\"name\":\"Beta Corp\",\"sentimentScore\":0.2,\"riskStatus\":\"stable\"},\"project\":{\"_id\":\"proj-2\",\"name\":\"API Integration\"}}",
+    "expectedOutput": "null",
+    "actualOutput": "null",
+    "status": "PASS"
+  }
+]
