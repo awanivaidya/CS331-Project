@@ -120,6 +120,9 @@ npm run test:module-risk
   - Add guard before accessing `project._id` and `project.name`.
   - Use optional chaining/defaults: `project?._id || null`, `project?.name || "Unknown Project"`.
 
+- Reproduction code:
+  node -e "const { generateAlertIfNeeded } = require('./core/services/riskService'); const customer = { _id: 'cust-1', name: 'ACME Corp', sentimentScore: -0.82, riskStatus: 'critical' }; console.log(generateAlertIfNeeded(customer, null));"
+
 ### Bug ID: BUG-RISK-002
 - Description of the issue: `updateCustomerSentiment` crashes if `customer.sentimentHistory` is missing.
 - Steps to reproduce:
@@ -133,6 +136,8 @@ npm run test:module-risk
 - Suggested fix:
   - Initialize history safely at function start:
     - `if (!Array.isArray(customer.sentimentHistory)) customer.sentimentHistory = [];`
+- Reproduction code:
+node -e "const { updateCustomerSentiment } = require('./core/services/riskService'); const customer = { sentimentScore: 0, riskStatus: 'stable' }; updateCustomerSentiment(customer, -0.5); console.log(customer);"
 
 ### Bug ID: BUG-RISK-003
 - Description of the issue: Non-numeric `newScore` causes `NaN` sentiment score and incorrect `stable` risk classification.
@@ -147,6 +152,8 @@ npm run test:module-risk
 - Suggested fix:
   - Validate numeric inputs before calculations:
     - `const score = Number(newScore); if (!Number.isFinite(score)) throw new Error("Invalid sentiment score");`
+- Reproduction code:
+node -e "const { updateCustomerSentiment } = require('./core/services/riskService'); const customer = { sentimentHistory: [{ score: 0, timestamp: new Date() }], sentimentScore: 0, riskStatus: 'stable' }; updateCustomerSentiment(customer, 'bad-input'); console.log(customer);"
 
 ### Reproduction Evidence Collected
 Observed terminal outputs during defect reproduction:
